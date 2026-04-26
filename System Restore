@@ -1,0 +1,481 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Restore → System Upgrade</title>
+  <meta name="description" content="A real-time rebuild story: restoring stability while building a next-generation visual code platform." />
+  <style>
+    :root {
+      --bg: #070711;
+      --panel: rgba(255,255,255,0.075);
+      --panel-strong: rgba(255,255,255,0.12);
+      --text: #f7f7ff;
+      --muted: #b9bbd6;
+      --cyan: #00f0ff;
+      --violet: #8b5cff;
+      --green: #00ff9d;
+      --pink: #ff4fd8;
+      --warn: #ffd166;
+      --danger: #ff5c7a;
+      --radius: 22px;
+      --shadow: 0 22px 70px rgba(0,0,0,0.38);
+    }* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(0,240,255,0.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(139,92,255,0.22), transparent 30%),
+    radial-gradient(circle at 50% 80%, rgba(255,79,216,0.08), transparent 36%),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: inherit; }
+
+.wrap {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(16px);
+  background: rgba(7,7,17,0.72);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  gap: 16px;
+}
+
+.brand {
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.orb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--cyan), var(--violet), var(--pink));
+  box-shadow: 0 0 28px var(--cyan);
+}
+
+.navlinks {
+  display: flex;
+  gap: 16px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.navlinks a {
+  text-decoration: none;
+}
+
+.hero {
+  padding: 86px 0 52px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 34px;
+  align-items: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 13px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.07);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: clamp(2.55rem, 7vw, 5.6rem);
+  line-height: 0.94;
+  letter-spacing: -0.075em;
+  margin: 0 0 20px;
+}
+
+.gradient {
+  background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lead {
+  font-size: clamp(1.08rem, 2vw, 1.35rem);
+  color: var(--muted);
+  max-width: 680px;
+  margin: 0 0 26px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 850;
+  transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+}
+
+.btn:hover { transform: translateY(-2px); }
+
+.btn.primary {
+  color: #050510;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  box-shadow: 0 18px 50px rgba(0,240,255,0.2);
+}
+
+.btn.secondary {
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.mission-card {
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-card::before {
+  content: "";
+  position: absolute;
+  inset: -80px -80px auto auto;
+  width: 190px;
+  height: 190px;
+  border-radius: 999px;
+  background: rgba(0,240,255,0.18);
+  filter: blur(12px);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.stat {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--green);
+}
+
+section { padding: 34px 0; }
+
+.section-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+h2 {
+  font-size: clamp(1.7rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.055em;
+  margin: 0;
+}
+
+.muted { color: var(--muted); }
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.card {
+  padding: 22px;
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 1.18rem;
+}
+
+.card p, .card li {
+  color: var(--muted);
+}
+
+.progress-shell {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+  margin: 16px 0 8px;
+}
+
+.progress-bar {
+  width: 18%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--cyan), var(--violet));
+}
+
+.payments {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.pay {
+  text-align: center;
+  padding: 18px 12px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.11);
+  text-decoration: none;
+  font-weight: 850;
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pay span {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.logline {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  padding: 15px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+}
+
+.tag {
+  color: var(--green);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+
+.supporter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border-radius: 15px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+}
+
+footer {
+  padding: 44px 0 64px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 840px) {
+  .hero, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .payments { grid-template-columns: repeat(2, 1fr); }
+  .navlinks { display: none; }
+  .hero { padding-top: 58px; }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav>
+        <div class="brand"><span class="orb"></span> System Restore</div>
+        <div class="navlinks">
+          <a href="#support">Support</a>
+          <a href="#platform">Platform</a>
+          <a href="#log">Build Log</a>
+          <a href="#tiers">Tiers</a>
+        </div>
+      </nav>
+    </div>
+  </header>  <main>
+    <div class="wrap hero">
+      <div>
+        <div class="pill"><span class="orb"></span> Real-time rebuild + real product build</div>
+        <h1>Rebuilding from zero. <span class="gradient">Building something bigger.</span></h1>
+        <p class="lead">I’m restoring my stability while building a next-generation visual code platform: offline-first, multi-language, drag-and-drop, and designed for people who think spatially.</p>
+        <div class="actions">
+          <a class="btn primary" href="#support">Support the Rebuild</a>
+          <a class="btn secondary" href="#platform">See the Platform</a>
+        </div>
+      </div>
+      <aside class="panel mission-card">
+        <h3>Current Mission</h3>
+        <p class="muted">Restore documents, regain stability, and keep the build alive.</p>
+        <div class="progress-shell"><div class="progress-bar"></div></div>
+        <p class="muted">Progress tracker placeholder — update this number manually as support comes in.</p>
+        <div class="stat-grid">
+          <div class="stat"><strong>$500</strong><span class="muted">ID + mail access</span></div>
+          <div class="stat"><strong>$1.5k</strong><span class="muted">Stability push</span></div>
+          <div class="stat"><strong>$3k</strong><span class="muted">Build runway</span></div>
+          <div class="stat"><strong>$4.5k</strong><span class="muted">Full reset</span></div>
+        </div>
+      </aside>
+    </div><section id="support">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Support options</h2>
+      <p class="muted">Use whichever app is easiest. Replace the placeholders with your real links or handles.</p>
+    </div>
+    <div class="payments">
+      <a class="pay" href="https://gofundme.com/YOUR-LINK">GoFundMe<span>main campaign</span></a>
+      <a class="pay" href="https://cash.app/$YOURCASHTAG">Cash App<span>$YOURCASHTAG</span></a>
+      <a class="pay" href="https://venmo.com/YOURVENMO">Venmo<span>@YOURVENMO</span></a>
+      <a class="pay" href="mailto:YOUR-ZELLE-EMAIL@example.com?subject=Zelle%20Support%20Info">Zelle<span>email/phone</span></a>
+      <a class="pay" href="https://buy.stripe.com/YOUR-LINK">Stripe<span>direct support</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="platform">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>The platform</h2>
+      <p class="muted">A living code canvas. Not just a notebook. Not just an editor.</p>
+    </div>
+    <div class="grid-3">
+      <div class="panel card">
+        <h3>Independent code blocks</h3>
+        <p>Each block runs like its own small programming environment with language, permissions, runtime, and output.</p>
+      </div>
+      <div class="panel card">
+        <h3>Offline-first Python</h3>
+        <p>Pyodide/WASM lets Python run locally in the browser or Android WebView without a backend server.</p>
+      </div>
+      <div class="panel card">
+        <h3>Spatial programming</h3>
+        <p>Drag, connect, resize, shape, annotate, and wire logic visually across an infinite canvas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tiers">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Supporter tiers</h2>
+      <p class="muted">People are not just donating. They are joining the rebuild.</p>
+    </div>
+    <div class="grid-3">
+      <div class="panel card"><h3>$5 — Signal Boost</h3><p>Your support helps keep the build alive and the story moving.</p></div>
+      <div class="panel card"><h3>$25 — Founding Supporter</h3><p>Early update access and your name/handle on the supporter wall.</p></div>
+      <div class="panel card"><h3>$100+ — Build Ally</h3><p>Priority dev log updates, beta access when ready, and feature voting.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="log">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Live build log</h2>
+      <p class="muted">This rebuild is happening in real time.</p>
+    </div>
+    <div class="timeline">
+      <div class="logline"><div class="tag">DAY 01</div><div>Python/WASM runtime architecture locked with Pyodide sandboxing.</div></div>
+      <div class="logline"><div class="tag">DAY 02</div><div>Canvas-based code block structure outlined: configure, edit, clone, delete, fork.</div></div>
+      <div class="logline"><div class="tag">DAY 03</div><div>Gesture engine chosen as the next primary system: pen, touch, drag, lasso, strike, connect.</div></div>
+      <div class="logline"><div class="tag">DAY 04</div><div>Bluetooth kernel limitation diagnosed; Android host sensory bridge architecture selected.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap grid-2">
+    <div class="panel card">
+      <h2>Why this matters</h2>
+      <p>This is not just a fundraiser. It is a public rebuild tied to a real technical platform: a code environment that can run locally, visually, and accessibly on everyday devices.</p>
+    </div>
+    <div class="panel card">
+      <h2>Supporter wall</h2>
+      <div class="supporter"><div class="avatar"></div><div><strong>Founding Supporter</strong><br><span class="muted">Your name or handle here</span></div></div>
+      <div class="supporter" style="margin-top:10px;"><div class="avatar"></div><div><strong>Build Ally</strong><br><span class="muted">Your name or handle here</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap panel card" style="text-align:center; padding:36px;">
+    <h2>System Restore → System Upgrade</h2>
+    <p class="muted">Help restore stability. Help build the future. Watch it happen live.</p>
+    <div class="actions" style="justify-content:center;">
+      <a class="btn primary" href="#support">Support Now</a>
+      <a class="btn secondary" href="https://Eddieguy788-hub.github.io">Live Site</a>
+    </div>
+  </div>
+</section>
+
+  </main>  <footer>
+    <div class="wrap">
+      Built for GitHub Pages: https://Eddieguy788-hub.github.io<br />
+      Replace placeholder payment links before sharing publicly.
+    </div>
+  </footer>
+</body>
+</html>

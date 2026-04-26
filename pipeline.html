@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4-Port Security Pipeline</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #080c10;
+    --grid: rgba(0,255,180,0.04);
+    --in-color: #00e5ff;
+    --san-color: #00ff99;
+    --out-json: #ffaa00;
+    --out-py: #ff6b35;
+    --pipe: rgba(255,255,255,0.12);
+    --glow-in: 0 0 18px rgba(0,229,255,0.6);
+    --glow-san: 0 0 18px rgba(0,255,153,0.6);
+    --glow-json: 0 0 18px rgba(255,170,0,0.6);
+    --glow-py: 0 0 18px rgba(255,107,53,0.6);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Scan line */
+  body::after {
+    content: '';
+    position: fixed;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,255,180,0.15), transparent);
+    animation: scan 4s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes scan { from { top: -2px; } to { top: 100vh; } }
+
+  h1 {
+    font-family: 'Share Tech Mono', monospace;
+    color: rgba(0,255,180,0.7);
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeIn 0.6s 0.2s forwards;
+  }
+
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.4s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* ── COLUMN ── */
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ── NODE ── */
+  .node {
+    position: relative;
+    width: 190px;
+    padding: 18px 16px 16px;
+    border: 1px solid;
+    border-radius: 4px;
+    background: rgba(8,12,16,0.92);
+    cursor: default;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .node:hover { transform: translateY(-2px); }
+
+  .node-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .node-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .node-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .node-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.05em;
+    padding: 3px 7px;
+    border-radius: 2px;
+    border: 1px solid;
+    opacity: 0.85;
+  }
+
+  /* IN colors */
+  .in .node { border-color: rgba(0,229,255,0.4); box-shadow: var(--glow-in); }
+  .in .node:hover { box-shadow: 0 0 32px rgba(0,229,255,0.8); }
+  .in .node-tag { color: var(--in-color); }
+  .in .node-tag::before { background: var(--in-color); box-shadow: 0 0 6px var(--in-color); }
+  .in .node-title { color: var(--in-color); }
+  .in .badge { border-color: rgba(0,229,255,0.35); color: rgba(0,229,255,0.75); background: rgba(0,229,255,0.06); }
+
+  /* SAN colors */
+  .san .node { border-color: rgba(0,255,153,0.4); box-shadow: var(--glow-san); }
+  .san .node:hover { box-shadow: 0 0 32px rgba(0,255,153,0.8); }
+  .san .node-tag { color: var(--san-color); }
+  .san .node-tag::before { background: var(--san-color); box-shadow: 0 0 6px var(--san-color); animation-delay: 0.4s; }
+  .san .node-title { color: var(--san-color); }
+  .san .badge { border-color: rgba(0,255,153,0.35); color: rgba(0,255,153,0.75); background: rgba(0,255,153,0.06); }
+
+  /* JSON colors */
+  .json .node { border-color: rgba(255,170,0,0.4); box-shadow: var(--glow-json); }
+  .json .node:hover { box-shadow: 0 0 32px rgba(255,170,0,0.8); }
+  .json .node-tag { color: var(--out-json); }
+  .json .node-tag::before { background: var(--out-json); box-shadow: 0 0 6px var(--out-json); animation-delay: 0.8s; }
+  .json .node-title { color: var(--out-json); }
+  .json .badge { border-color: rgba(255,170,0,0.35); color: rgba(255,170,0,0.75); background: rgba(255,170,0,0.06); }
+
+  /* PY colors */
+  .py .node { border-color: rgba(255,107,53,0.4); box-shadow: var(--glow-py); }
+  .py .node:hover { box-shadow: 0 0 32px rgba(255,107,53,0.8); }
+  .py .node-tag { color: var(--out-py); }
+  .py .node-tag::before { background: var(--out-py); box-shadow: 0 0 6px var(--out-py); animation-delay: 1.2s; }
+  .py .node-title { color: var(--out-py); }
+  .py .badge { border-color: rgba(255,107,53,0.35); color: rgba(255,107,53,0.75); background: rgba(255,107,53,0.06); }
+
+  /* ── PROCESSOR BOX ── */
+  .processor {
+    width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.025);
+    position: relative;
+  }
+  .processor-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .processor-icon {
+    font-size: 1.8rem;
+    filter: grayscale(0.3);
+  }
+  .processor-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+  .proc-step {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.52rem;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 3px 6px;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 2px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  /* ── CONNECTORS ── */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  /* Double arrow shaft for in→proc */
+  .conn-in {
+    display: flex;
+    flex-direction: column;
+    gap: 38px;
+    align-items: center;
+    width: 60px;
+  }
+
+  .arrow-line {
+    display: flex;
+    align-items: center;
+    width: 60px;
+    position: relative;
+  }
+  .arrow-line::before {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--c1, rgba(0,229,255,0.5)), var(--c2, rgba(0,255,153,0.5)));
+    box-shadow: 0 0 6px var(--c1, rgba(0,229,255,0.3));
+    animation: flowRight 1.2s linear infinite;
+    background-size: 200% 100%;
+  }
+  @keyframes flowRight {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+  .arrow-line::after {
+    content: '▶';
+    font-size: 0.6rem;
+    color: var(--c2, rgba(0,255,153,0.7));
+    margin-left: -2px;
+  }
+
+  /* proc→out split */
+  .conn-out {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    width: 60px;
+    padding-left: 4px;
+  }
+
+  .port-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.52rem;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  /* vertical merge line left of processor */
+  .merge-lines {
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 28px;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeIn 0.8s 1s forwards;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── SVG CONNECTOR ── */
+  .svg-wrap {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>▸ 4-Port Security Pipeline</h1>
+
+<div class="pipeline">
+
+  <!-- ── INPUT COLUMN ── -->
+  <div class="col">
+
+    <div class="in">
+      <div class="node">
+        <div class="node-tag">IN · PORT 1</div>
+        <div class="node-title">Whitelist<br>Gate</div>
+        <div class="node-badges">
+          <span class="badge">IP WHITELIST</span>
+          <span class="badge">METHOD FILTER</span>
+          <span class="badge">CONTENT-TYPE</span>
+          <span class="badge">FIELD CHECK</span>
+          <span class="badge">SQLi BLOCK</span>
+          <span class="badge">XSS BLOCK</span>
+        </div>
+        <div class="port-label">:49152</div>
+      </div>
+    </div>
+
+    <div class="san">
+      <div class="node">
+        <div class="node-tag">IN · PORT 2</div>
+        <div class="node-title">Sanitizer<br>+ Validator</div>
+        <div class="node-badges">
+          <span class="badge">WHITESPACE</span>
+          <span class="badge">NULL BYTES</span>
+          <span class="badge">CTRL CHARS</span>
+          <span class="badge">UNICODE NORM</span>
+          <span class="badge">SCHEMA CHECK</span>
+          <span class="badge">SIZE LIMITS</span>
+        </div>
+        <div class="port-label">:49153</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── IN → PROC ARROWS ── -->
+  <div class="conn-in">
+    <div class="arrow-line" style="--c1:rgba(0,229,255,0.6);--c2:rgba(0,229,255,0.6)"></div>
+    <div class="arrow-line" style="--c1:rgba(0,255,153,0.6);--c2:rgba(0,255,153,0.6)"></div>
+  </div>
+
+  <!-- ── PROCESSOR ── -->
+  <div class="processor">
+    <div class="processor-label">Core<br>Processor</div>
+    <div class="processor-icon">⚙</div>
+    <div class="processor-steps">
+      <div class="proc-step">MERGE</div>
+      <div class="proc-step">DEDUPE</div>
+      <div class="proc-step">NORMALIZE</div>
+      <div class="proc-step">ROUTE</div>
+    </div>
+  </div>
+
+  <!-- ── PROC → OUT ARROWS ── -->
+  <div style="display:flex;flex-direction:column;gap:40px;width:60px;align-items:stretch;margin-top:0;">
+    <div class="arrow-line" style="--c1:rgba(255,170,0,0.6);--c2:rgba(255,170,0,0.6)"></div>
+    <div style="height:4px"></div>
+    <div class="arrow-line" style="--c1:rgba(255,107,53,0.6);--c2:rgba(255,107,53,0.6)"></div>
+  </div>
+
+  <!-- ── OUTPUT COLUMN ── -->
+  <div class="col">
+
+    <div class="json">
+      <div class="node">
+        <div class="node-tag">OUT · PORT 3</div>
+        <div class="node-title">JSON<br>Dataset</div>
+        <div class="node-badges">
+          <span class="badge">NDJSON</span>
+          <span class="badge">APPEND MODE</span>
+          <span class="badge">TYPED FIELDS</span>
+          <span class="badge">TIMESTAMPED</span>
+        </div>
+        <div class="port-label">:49154 → dataset.json</div>
+      </div>
+    </div>
+
+    <div class="py">
+      <div class="node">
+        <div class="node-tag">OUT · PORT 4</div>
+        <div class="node-title">MicroPython<br>Output</div>
+        <div class="node-badges">
+          <span class="badge">ujson COMPAT</span>
+          <span class="badge">NO FLOATS</span>
+          <span class="badge">NONE→NULL</span>
+          <span class="badge">STRIPPED</span>
+        </div>
+        <div class="port-label">:49155 → data.py</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--in-color);box-shadow:0 0 6px var(--in-color)"></div>Whitelist Gate</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--san-color);box-shadow:0 0 6px var(--san-color)"></div>Sanitizer</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fff;opacity:0.3"></div>Processor</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--out-json);box-shadow:0 0 6px var(--out-json)"></div>JSON Out</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--out-py);box-shadow:0 0 6px var(--out-py)"></div>MicroPython Out</div>
+</div>
+
+</body>
+</html>

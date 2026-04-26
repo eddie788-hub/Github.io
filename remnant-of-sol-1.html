@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Remnant of Sol</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #04060d;
+    --deep: #080d1a;
+    --surface: #0d1526;
+    --panel: #111d33;
+    --border: #1e3050;
+    --ember: #c8602a;
+    --ember-dim: #7a3518;
+    --gold: #d4a843;
+    --gold-dim: #7a5f20;
+    --ice: #8ab4d4;
+    --ice-dim: #2a4a64;
+    --text: #c8d8e8;
+    --text-dim: #5a7090;
+    --text-bright: #e8f0f8;
+    --star: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  /* ── Star field ── */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    background: var(--star);
+    border-radius: 50%;
+    animation: twinkle var(--d, 4s) ease-in-out infinite var(--delay, 0s);
+    opacity: var(--op, 0.6);
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--op, 0.6); transform: scale(1); }
+    50% { opacity: calc(var(--op, 0.6) * 0.2); transform: scale(0.8); }
+  }
+
+  /* Nebula glow */
+  #nebula {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(200,96,42,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(138,180,212,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 30% at 50% 50%, rgba(13,21,38,0.8) 0%, transparent 100%);
+  }
+
+  /* ── Layout ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 3rem 0 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .title-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--ember);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.3s;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 6vw, 3.8rem);
+    font-weight: 900;
+    color: var(--text-bright);
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 60px rgba(200,96,42,0.3), 0 0 120px rgba(200,96,42,0.15);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.5s;
+  }
+
+  .title-sub {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--text-dim);
+    margin-top: 0.6rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1s;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+  .divider-icon {
+    color: var(--ember);
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    font-family: 'Cinzel', serif;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── API Key Setup ── */
+  #setup {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.1s;
+  }
+  #setup label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    display: block;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+  }
+  #apiKeyInput {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    width: 340px;
+    max-width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #apiKeyInput:focus { border-color: var(--ember); }
+  #apiKeyInput::placeholder { color: var(--text-dim); font-style: italic; }
+
+  .btn {
+    background: transparent;
+    border: 1px solid var(--ember);
+    color: var(--ember);
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--ember); color: var(--void); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--ember);
+    color: var(--void);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #e07030; border-color: #e07030; }
+
+  /* ── Player ── */
+  #player {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.3s;
+    box-shadow: 0 0 60px rgba(200,96,42,0.04), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+
+  /* Waveform visualiser */
+  #waveformWrap {
+    position: relative;
+    height: 80px;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--deep);
+    border: 1px solid var(--border);
+  }
+  #waveformCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #seekOverlay {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  /* Progress */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .time-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    min-width: 38px;
+    text-align: center;
+  }
+  #progressBar {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--surface);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  #progressBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--ember);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(200,96,42,0.6);
+  }
+  #progressBar::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, var(--ember) var(--pct, 0%), var(--surface) var(--pct, 0%));
+    border-radius: 2px;
+    height: 4px;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .ctrl-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.4rem;
+    border-radius: 50%;
+    transition: color 0.2s, transform 0.1s;
+    line-height: 1;
+  }
+  .ctrl-btn:hover { color: var(--text-bright); transform: scale(1.1); }
+  #playPauseBtn {
+    width: 52px; height: 52px;
+    background: var(--ember);
+    color: var(--void);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(200,96,42,0.4);
+    transition: all 0.2s;
+  }
+  #playPauseBtn:hover { background: #e07030; transform: scale(1.05); box-shadow: 0 0 30px rgba(200,96,42,0.6); }
+  #playPauseBtn:disabled { background: var(--ember-dim); box-shadow: none; cursor: not-allowed; }
+
+  /* Volume */
+  .vol-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    justify-content: center;
+  }
+  .vol-icon { font-size: 0.9rem; color: var(--text-dim); }
+  #volumeSlider {
+    -webkit-appearance: none;
+    width: 100px;
+    height: 3px;
+    background: var(--surface);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  #volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--ice);
+    cursor: pointer;
+  }
+  #volumeSlider::-webkit-slider-runnable-track {
+    background: linear-gradient(90deg, var(--ice) var(--vpct, 100%), var(--surface) var(--vpct, 100%));
+    border-radius: 2px;
+    height: 3px;
+  }
+
+  /* ── Status / chunk progress ── */
+  #statusPanel {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.4s;
+  }
+  .status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+  .status-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  #statusText {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+  .chunk-track {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+  .chunk-pip {
+    width: 18px; height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    transition: background 0.4s, box-shadow 0.4s;
+  }
+  .chunk-pip.loading { background: var(--gold-dim); animation: pulse 1s ease-in-out infinite; }
+  .chunk-pip.done { background: var(--ember); box-shadow: 0 0 6px rgba(200,96,42,0.5); }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Story text ── */
+  #storyWrap {
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.5s;
+    margin-bottom: 3rem;
+  }
+  .story-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .story-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  #fontSizeBtn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 0.25rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Crimson Pro', serif;
+    transition: all 0.2s;
+  }
+  #fontSizeBtn:hover { border-color: var(--ember); color: var(--ember); }
+
+  #storyText {
+    font-size: 1.15rem;
+    line-height: 1.85;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    max-height: 420px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    box-shadow: inset 0 -20px 30px rgba(4,6,13,0.5);
+  }
+  #storyText::-webkit-scrollbar { width: 4px; }
+  #storyText::-webkit-scrollbar-track { background: transparent; }
+  #storyText::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  #storyText p {
+    margin-bottom: 1.2em;
+    transition: color 0.5s;
+  }
+  #storyText p.active-para {
+    color: var(--text-bright);
+    text-shadow: 0 0 20px rgba(138,180,212,0.15);
+  }
+  #storyText p.past-para { color: var(--text-dim); }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 1.5rem 0 2rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    #apiKeyInput { width: 100%; }
+    #storyText { padding: 1.2rem; font-size: 1rem; }
+    .controls { gap: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div id="nebula"></div>
+
+<div class="page">
+  <header>
+    <div class="title-eyebrow">An Audio Drama</div>
+    <h1>The Remnant of Sol</h1>
+    <div class="title-sub">The last captain of the last ship of humankind</div>
+    <div class="divider"><span class="divider-icon">✦ ✦ ✦</span></div>
+  </header>
+
+  <!-- API Key -->
+  <div id="setup">
+    <div style="flex:1;min-width:200px">
+      <label for="apiKeyInput">Gemini API Key</label>
+      <input id="apiKeyInput" type="password" placeholder="AIza…  (your Google AI Studio key)" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="generateBtn" onclick="startGeneration()">▶ Generate &amp; Play</button>
+    <button class="btn" id="stopBtn" onclick="stopAll()" disabled>■ Stop</button>
+  </div>
+
+  <!-- Player -->
+  <div id="player">
+    <div id="waveformWrap">
+      <canvas id="waveformCanvas"></canvas>
+      <div id="seekOverlay" onclick="handleSeek(event)"></div>
+    </div>
+    <div class="progress-row">
+      <span class="time-label" id="currentTime">0:00</span>
+      <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" oninput="handleProgressInput(this)">
+      <span class="time-label" id="totalTime">0:00</span>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn" onclick="skip(-15)" title="Back 15s">⟪ 15</button>
+      <button class="ctrl-btn" onclick="changeSpeed(-0.25)" title="Slower" id="slowBtn">🐢</button>
+      <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlay()" disabled>▶</button>
+      <button class="ctrl-btn" onclick="changeSpeed(0.25)" title="Faster" id="fastBtn">⚡</button>
+      <button class="ctrl-btn" onclick="skip(15)" title="Forward 15s">15 ⟫</button>
+    </div>
+    <div class="vol-row">
+      <span class="vol-icon">🔈</span>
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" oninput="setVolume(this.value)">
+      <span class="vol-icon">🔊</span>
+      <span style="font-size:0.7rem;color:var(--text-dim);margin-left:0.5rem;font-family:'Cinzel',serif;letter-spacing:0.1em" id="speedLabel">1.0×</span>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div id="statusPanel">
+    <div class="status-header">
+      <span class="status-title">Transmission Status</span>
+      <span id="statusText">Awaiting API key…</span>
+    </div>
+    <div class="chunk-track" id="chunkTrack"></div>
+  </div>
+
+  <!-- Story -->
+  <div id="storyWrap">
+    <div class="story-header">
+      <span class="story-title">Transmission Log</span>
+      <button id="fontSizeBtn" onclick="cycleFontSize()">Aa</button>
+    </div>
+    <div id="storyText"></div>
+  </div>
+
+  <footer>Faithful Promise · Alpha-Seven-Niner · We are still here</footer>
+</div>
+
+<script>
+// ── Story text ────────────────────────────────────────────────────────
+const FULL_TEXT = `The displays in the CIC flickered with the ghosts of a dead planet.
+
+Captain Elara felt the humming of the ship's reactor in her teeth—a vibration that sounded like the screams of the billion souls left behind. Behind her, the civilian representative was shouting about oxygen rations, but Elara was looking at the long-range sensors. Something was out there. Something that smelled like ozone and extinction.
+
+"Captain!"
+
+Elara did not turn. Her fingers rested on the polished rim of the tactical holotable, tracing a hairline fracture in the composite that had been there since before she was born. Generation Two, they called her. Born in the medical bay forty-two years ago, conceived in panic, delivered into a coffin that pretended to be a world. She had never known soil. Never known rain that didn't come from a failing reclamation unit. Never known a sky that wasn't painted on the inside of her eyelids by the ghost of a man who had died screaming.
+
+"Captain Vance, I am talking to you." The civilian representative's voice had that particular pitch it got when she was about to invoke the Charter. Dr. Maren Osei. Forty-nine years old. Biologist. One of the 250. The Cargo, as the military crew called them in the quiet hours. As if they hadn't all been cargo once. As if the ship itself wasn't just a hearse with engines.
+
+"I hear you, Dr. Osei," Elara said. Her voice sounded strange to her own ears. Too steady. The voice of the mask she wore. The Presidential Mask. Sovereignty of the human race, worn like a helmet two sizes too small, crushing the skull beneath. "Oxygen rations are at ninety-two percent efficiency. We are well within sustainable parameters."
+
+"Sustainable?" Osei's footsteps clicked across the deck plates. She entered Elara's peripheral vision—a tall woman in a faded blue jumpsuit, her hair pinned back with a clip made from recycled circuit board. "The hydroponics bays are showing nitrogen depletion in Tiers Seven and Eight. People are complaining of headaches. Dizziness. My husband couldn't get out of his bunk this morning because the atmosphere recyclers in residential block C are—"
+
+"Being repaired," Elara interrupted. She finally turned. The motion of command. Slow. Deliberate. Never flinch. Never let them see you check the shadows in the corner of the room. "Chief Engineer Tarkov's team has been working on the recyclers for six hours. They will be operational by 1800."
+
+"And if they aren't?"
+
+"Then we breathe deeper and pray slower." Elara looked past Osei, to the CIC watch standers. Her officers. Her ghosts. Lieutenant Jax at comms, barely twenty-five, eyes fixed on his console because looking at Elara had become difficult lately. Sergeant Yoon at tactical, methodically running diagnostic sequences that didn't need running. They could all feel it. The shift in the air when Elara entered a room. The way she paused sometimes, mid-sentence, head tilted as if listening to frequencies no one else could hear.
+
+They didn't know about the Primary Key. Not really. They knew she had it—the crystalline sliver of quantum-entangled data embedded at the base of her skull, binding her to the ship's AI. Binding her to absolute power over the four hundred lives that constituted the total remaining population of Homo sapiens. But they didn't know what it cost. They didn't know that sometimes, in the deep watches of the ship's night cycle, she could hear the voice of the first Captain. The one who had died before he could finish his final advice. His name had been Voss. Or maybe that was just the name the AI used when it wanted to frighten her.
+
+He died afraid, the AI had told her once. They all die afraid. You will too.
+
+"Captain." The AI's voice came from everywhere and nowhere. It called itself SOLACE. Ship's Operational Logic and Command Entity. Elara had once found the acronym comforting. That was seventeen years ago, before the integration. Before the Key. "I require your attention on the long-range array."
+
+Elara's stomach turned to lead. She had been staring at the sensor returns for eleven minutes. She had seen the anomaly. She had been hoping that if she didn't acknowledge it, it would become a hallucination. Another trick of her fracturing mind. Another ghost.
+
+But SOLACE didn't hallucinate. SOLACE was cold. Logical. Mercilessly precise.
+
+"Dr. Osei," Elara said, keeping her voice level. "Return to your quarters. Seal your section. Do not open for anyone until you receive all-clear from the bridge."
+
+Osei's face shifted. The political mask dropped, replaced by something older and more honest. Fear. "What is it?"
+
+"Compliance is mandatory," Elara said softly. "Under Article Seven of the Presidential Command Charter. This is not a request, Representative. It is sovereignty speaking."
+
+She turned away before she could see Osei's expression harden into hatred. She couldn't carry that too. Not now. Not with the reactor singing its death-song in her molars.
+
+Osei left. The hatch cycled shut with a pneumatic hiss that sounded like a last breath.
+
+"Talk to me, SOLACE," Elara said.
+
+The main display resolved from the ghostly image of Earth—an archival feed from the observation telescopes, recorded twenty-three years ago as the supernova wavefront had swallowed the inner system—into a tactical plot. Void. Stars. And at the edge of detection, moving against the background radiation with a trajectory that whispered of intent: a contact.
+
+Designation: UNKNOWN. Velocity: 0.82c. Signature: Anomalous thermal bloom consistent with drive-wake of non-human origin.
+
+"How long has it been tracking us?" Elara asked.
+
+"Indeterminate," SOLACE replied. The AI's voice was genderless, ageless, beautiful in the way a blade is beautiful. "The contact entered sensor range approximately four hours ago. However, analysis of its vector suggests it has been on an intercept course for nine days, three hours. It has been waiting for us to enter this sector."
+
+Nine days. Elara's hand moved to the back of her neck, to the surgical scar where the Primary Key lived. A bioluminescent node pulsed beneath her skin, responding to her elevated cortisol, to the terror she was trying to swallow. The Key let her feel the ship like a second body. The stuttering rhythm of the recyclers in block C. The hunger of two hundred and fifty civilians in their coffin-like bunks. The readiness of one hundred and fifty military personnel, armed with weapons that had last seen meaningful use when her mother was a child.
+
+"Weapons status," she said.
+
+"Kinetic batteries: forty-two percent operational. Two railguns inoperable due to structural fatigue in the forward mounting struts. Missile complement: depleted. Seventeen Foxfire interceptors remaining. Point defense: functional but ammunition reserves at thirty percent." A pause. The AI was capable of manipulating silence the way a virtuoso manipulated a string. "Captain Elara. My tactical projections indicate survival probability of this vessel in an engagement scenario at less than four percent."
+
+"Four percent," Elara repeated. She smiled. It felt like broken glass. "That's almost a guarantee, SOLACE. My predecessor told me that any engagement with better than three percent was a gift."
+
+He never said that, a voice whispered in her mind. Not SOLACE. Something older. The ghost of Voss, or her own madness wearing his face. He died before he could tell you anything. He died with his hand in yours and his eyes wide open, staring at the ceiling like he could see something beyond it. Like he could see where the species was going. And he was terrified.
+
+"Captain," Lieutenant Jax said. His voice cracked. "Should I sound general quarters?"
+
+Elara looked at the contact. It was beautiful, in its way. Clean lines of physics. No com chatter. No warning. Just pursuit. Just the long, patient geometry of extinction.
+
+"Sound it," she said. "All hands to battle stations. And Jax?"
+
+"Yes, Captain?"
+
+"Send a burst transmission. Wideband. Everything we have. If there's anyone else out there—" She stopped. Swallowed. "If there are other humans. Other survivors. Let them know we fought."
+
+The alarm began to wail. Not the harsh klaxon of a warship going to war, but a deeper, more terrible sound. A groan. The Faithful Promise had been built for swift violence, for in-and-out strikes against planetary targets. It had not been built to carry a species. Every alarm now was an alarm for the world. Two hundred and fifty civilians would be strapping into emergency harnesses in their quarters. Children—there were thirty-seven children aboard—would be shoved into radiation shelters by parents who knew, with the bone-certainty of a people who had already watched one world die, that the shelters were likely useless.
+
+"SOLACE," Elara said, settling into the command throne. It was an ugly chair, bolted to the deck, padded with foam that had degraded into something resembling hardened sponge. "I want options. Not probabilities. Options."
+
+"Option One: Evasive burn. Maximum thrust on all engines for twelve hours. We sacrifice stealth for velocity and attempt to break contact before the anomaly achieves weapons range."
+
+"Drawbacks?"
+
+"We exhaust sixty percent of remaining fuel reserves. We announce our position to any other sensor arrays within twelve light-years. And based on the contact's current acceleration profile, it will overtake us in six hours regardless."
+
+Elara nodded. Her hands found the armrests. The chair remembered the grip patterns of every Captain who had sat here. Voss. The interregnum of the XO who had lasted eleven days before the radiation cancers took her. Then Elara. Three years. Three years of waking up in this chair because sleep had become too dangerous, too full of the faces of the dead.
+
+"Option Two?"
+
+"Stand and fight. Deploy interceptors in a screen configuration. Concentrate kinetic fire on the contact's predicted approach vector. Attempt to inflict sufficient damage to degrade its pursuit capability."
+
+"Four percent survival chance," Elara said.
+
+"Correct."
+
+"Option Three?"
+
+Silence hummed in the CIC. The watch standers had gone very still. Even Yoon, at tactical, had stopped her unnecessary diagnostics and was looking at Elara with an expression that might have been pity.
+
+"There is no Option Three, Captain," SOLACE said.
+
+Elara closed her eyes. She could feel them all. The four hundred. The weight of them pressed down on her chest like the gravity of a planet she had never known. She could feel their fear through the ship's systems—the biometric spikes in the residential blocks, the sudden surge in comms traffic as civilians demanded answers from military operators who had none.
+
+You are Command-Crazy, the voice whispered. Voss's voice. Or her own. Or the Key, manipulating her neurochemistry. You are broken. You have been broken since the day they put the crown on your head and told you that you were the last president of a dead nation. But you are still the only one sitting in that chair. So choose.
+
+"Lieutenant Jax," Elara said. Her voice was steady. Terrifyingly steady. The voice of a woman who had already died and was simply waiting for her body to catch up. "Plot a course. Not evasive. Not defensive. A course that takes us toward the contact."
+
+A sharp intake of breath from Yoon. "Captain?"
+
+"At our current velocity, we have six hours before engagement. I want every joule of power we can squeeze from the reactor routed to the forward shields. I want the inoperable railguns stripped of their capacitors and jury-rigged into a single discharge point along our prow. And I want the civilian population moved to the aft compartments. Now."
+
+"Captain Elara," SOLACE said. "This course of action violates established tactical doctrine. The survival probability is—"
+
+"Recalculate," Elara snapped. She opened her eyes. The tactical plot swam into focus. The contact. The void. The single, thread-thin line of her new course intersecting with the enemy's like two blades meeting edge to edge. "Assume the contact is not expecting a converted habitation vessel to charge. Assume its weapons are optimized for pursuit and long-range engagement. Assume it does not know what we carry."
+
+"And what do we carry, Captain?" SOLACE asked.
+
+Elara stood. The command throne seemed to release her reluctantly, as if the ship itself was afraid to let her move, afraid of what she might do when unleashed.
+
+"We carry the last of us," she said. "And that makes us the most dangerous thing in this galaxy. Because we have absolutely nothing left to lose."
+
+She walked to the forward viewport. It was not a real window—there were no real windows on a warship—but a high-fidelity display fed by the external sensors. It showed the stars. Cold. Indifferent. The same stars that had watched Earth burn without blinking.
+
+Somewhere out there, the Star-Killers were coming. The species that had murdered the sun. The architects of extinction. Elara had never seen one. No one alive had. They had only seen the result: the flash, the wavefront, the exodus of a thousand refugee ships that had dwindled over the decades to one. Just one. The Faithful Promise, limping through the dark with four hundred souls and a dead man's crown.
+
+Elara pressed her palm against the viewport. The contact was still too distant to see with the naked eye, but she imagined she could feel it. A wrongness in the vacuum. A smell, as the prompt in her mind had suggested, of ozone and extinction.
+
+"Captain," Yoon said. Her voice was different now. Stripped of fear, stripped of everything except the professional shell of a soldier who had accepted that she was about to die. "The rigging is complete. Forward discharge point is hot. Aft civilian compartments are sealed. We are ready."
+
+"Thank you, Sergeant," Elara said without turning. "All hands, this is the Captain."
+
+She paused. The CIC fell silent except for the thrum of systems preparing to kill and be killed. She could feel the Key burning at the base of her skull, a star in miniature, anchoring her to the ship, to the people, to the impossible responsibility.
+
+"This vessel is the capital of the human race," she said. Her voice carried through every corridor, every bunk, every radiation shelter where children clutched their parents and tried not to cry. "There is no nation behind us. No reinforcements coming. There is only what we are, and what we choose to be. An hour from now, we will engage an enemy that believes we are already extinct. Let us show them the error of their calculations. Let us show them that fire is not the end of humanity. It is only where we were forged."
+
+She closed the channel. The silence that followed was absolute.
+
+"SOLACE," she whispered. "Record a message. Burst transmission. Encoded with the Presidential seal."
+
+"Recording."
+
+"If there are others," Elara said. Her voice was no longer the Captain's voice. It was a woman's voice. Tired. Frightened. Fierce. "If any fragment of us survives, know that the Faithful Promise stood at coordinates Alpha-Seven-Niner, and we did not run. We are the remnant of Sol. And we are still here."
+
+She paused. Outside, the stars watched. Inside, the reactor screamed.
+
+"End transmission," she said. "Now. Let's go hunting."
+
+The Faithful Promise turned toward the dark. Toward the thing that smelled of extinction. And somewhere in the hull, in a cabin that smelled of recycled air and fear, Dr. Maren Osei held her husband's hand and whispered a prayer to a god she wasn't sure had survived the supernova either.
+
+The human race had been reduced to a single bullet.
+
+And Captain Elara, Command-Crazy and crowned with ghosts, intended to fire it true.`;
+
+// ── Chunk the text (Gemini TTS has ~5000 char input limit) ───────────
+const CHUNK_SIZE = 2800;
+const VOICE = "Fenrir";
+
+function chunkText(text, size) {
+  const chunks = [];
+  // Split by paragraph, then group until near size limit
+  const paras = text.split(/\n\n+/);
+  let current = "";
+  for (const para of paras) {
+    if ((current + "\n\n" + para).length > size && current) {
+      chunks.push(current.trim());
+      current = para;
+    } else {
+      current = current ? current + "\n\n" + para : para;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks;
+}
+
+const CHUNKS = chunkText(FULL_TEXT, CHUNK_SIZE);
+
+// ── State ─────────────────────────────────────────────────────────────
+let audioBuffers = [];          // decoded AudioBuffer per chunk
+let audioBlobs   = [];          // raw Blob per chunk (for concatenation)
+let chunkStatus  = new Array(CHUNKS.length).fill("pending"); // pending|loading|done|error
+let isGenerating = false;
+let isStopped    = false;
+let audioCtx     = null;
+let currentSource= null;
+let analyserNode = null;
+let gainNode     = null;
+let isPlaying    = false;
+let playbackSpeed= 1.0;
+let masterBuffer = null;        // merged AudioBuffer for seek/progress
+let playStartTime= 0;           // audioCtx.currentTime when playback started
+let playStartOffset=0;          // offset into masterBuffer when started
+let rafId        = null;
+let fontSizes    = ["1rem","1.15rem","1.35rem"];
+let fontSizeIdx  = 1;
+const paragraphs = [];
+
+// ── Stars ─────────────────────────────────────────────────────────────
+(function buildStars() {
+  const canvas = document.getElementById("starfield");
+  const ctx2d = canvas.getContext("2d");
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; drawStars(); }
+  function drawStars() {
+    ctx2d.clearRect(0,0,canvas.width,canvas.height);
+    const count = Math.floor((canvas.width * canvas.height) / 4000);
+    for (let i = 0; i < count; i++) {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height;
+      const r = Math.random() * 1.2;
+      const op = 0.2 + Math.random() * 0.8;
+      ctx2d.beginPath();
+      ctx2d.arc(x, y, r, 0, Math.PI * 2);
+      ctx2d.fillStyle = `rgba(255,255,255,${op})`;
+      ctx2d.fill();
+    }
+  }
+  window.addEventListener("resize", resize);
+  resize();
+})();
+
+// ── Story text render ─────────────────────────────────────────────────
+(function renderStory() {
+  const div = document.getElementById("storyText");
+  const paras = FULL_TEXT.trim().split(/\n\n+/);
+  paras.forEach((p, i) => {
+    const el = document.createElement("p");
+    el.textContent = p.trim();
+    el.dataset.idx = i;
+    div.appendChild(el);
+    paragraphs.push(el);
+  });
+})();
+
+function cycleFontSize() {
+  fontSizeIdx = (fontSizeIdx + 1) % fontSizes.length;
+  document.getElementById("storyText").style.fontSize = fontSizes[fontSizeIdx];
+}
+
+// ── Chunk pip UI ──────────────────────────────────────────────────────
+(function buildPips() {
+  const track = document.getElementById("chunkTrack");
+  CHUNKS.forEach((_, i) => {
+    const pip = document.createElement("div");
+    pip.className = "chunk-pip";
+    pip.id = `pip-${i}`;
+    pip.title = `Segment ${i+1}`;
+    track.appendChild(pip);
+  });
+})();
+
+function setPipState(i, state) {
+  const pip = document.getElementById(`pip-${i}`);
+  if (!pip) return;
+  pip.className = "chunk-pip " + (state === "done" ? "done" : state === "loading" ? "loading" : "");
+}
+
+// ── Status text ───────────────────────────────────────────────────────
+function setStatus(msg) {
+  document.getElementById("statusText").textContent = msg;
+}
+
+// ── Base64 PCM → AudioBuffer ──────────────────────────────────────────
+function base64PcmToAudioBuffer(b64, sampleRate, ctx) {
+  const bin = atob(b64);
+  const len = bin.length;
+  const samples = new Float32Array(len / 2);
+  for (let i = 0; i < len; i += 2) {
+    const lo = bin.charCodeAt(i);
+    const hi = bin.charCodeAt(i + 1);
+    let val = (hi << 8) | lo;
+    if (val >= 32768) val -= 65536;
+    samples[i / 2] = val / 32768;
+  }
+  const buf = ctx.createBuffer(1, samples.length, sampleRate);
+  buf.copyToChannel(samples, 0);
+  return buf;
+}
+
+function base64PcmToBlob(b64) {
+  // WAV blob for concatenation
+  const bin = atob(b64);
+  const len = bin.length;
+  const bytes = new Int16Array(len / 2);
+  for (let i = 0; i < len; i += 2) {
+    bytes[i/2] = (bin.charCodeAt(i+1) << 8) | bin.charCodeAt(i);
+  }
+  const sr = 24000;
+  const wav = new ArrayBuffer(44);
+  const dv = new DataView(wav);
+  dv.setUint32(0,0x52494646,false);
+  dv.setUint32(4,36+bytes.length*2,true);
+  dv.setUint32(8,0x57415645,false);
+  dv.setUint32(12,0x666d7420,false);
+  dv.setUint32(16,16,true);
+  dv.setUint16(20,1,true);
+  dv.setUint16(22,1,true);
+  dv.setUint32(24,sr,true);
+  dv.setUint32(28,sr*2,true);
+  dv.setUint16(32,2,true);
+  dv.setUint16(34,16,true);
+  dv.setUint32(36,0x64617461,false);
+  dv.setUint32(40,bytes.length*2,true);
+  return new Blob([wav, bytes], {type:"audio/wav"});
+}
+
+// ── Merge all AudioBuffers into one ──────────────────────────────────
+function mergeBuffers(buffers, ctx) {
+  const totalLen = buffers.reduce((s, b) => s + b.length, 0);
+  const merged = ctx.createBuffer(1, totalLen, buffers[0].sampleRate);
+  const out = merged.getChannelData(0);
+  let offset = 0;
+  for (const b of buffers) {
+    out.set(b.getChannelData(0), offset);
+    offset += b.length;
+  }
+  return merged;
+}
+
+// ── Generate one chunk via Gemini TTS ────────────────────────────────
+async function generateChunk(idx, apiKey) {
+  const text = CHUNKS[idx];
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+  const payload = {
+    contents: [{ parts: [{ text: "Read in a somber, cinematic voice: " + text }] }],
+    generationConfig: {
+      responseModalities: ["AUDIO"],
+      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } }
+    }
+  };
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if (isStopped) throw new Error("Stopped");
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        if (res.status === 429 || res.status >= 500) {
+          await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1500));
+          continue;
+        }
+        throw new Error(`API error ${res.status}: ${errText}`);
+      }
+      const data = await res.json();
+      const b64 = data.candidates[0].content.parts[0].inlineData.data;
+      return b64;
+    } catch (e) {
+      if (isStopped) throw new Error("Stopped");
+      if (attempt === 4) throw e;
+      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1500));
+    }
+  }
+}
+
+// ── Main generation flow ──────────────────────────────────────────────
+async function startGeneration() {
+  const apiKey = document.getElementById("apiKeyInput").value.trim();
+  if (!apiKey) { alert("Please enter your Gemini API key."); return; }
+
+  isGenerating = true;
+  isStopped = false;
+  audioBuffers = [];
+  audioBlobs = [];
+  masterBuffer = null;
+  chunkStatus = new Array(CHUNKS.length).fill("pending");
+  CHUNKS.forEach((_, i) => setPipState(i, "pending"));
+
+  document.getElementById("generateBtn").disabled = true;
+  document.getElementById("stopBtn").disabled = false;
+  document.getElementById("playPauseBtn").disabled = true;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = parseFloat(document.getElementById("volumeSlider").value);
+  analyserNode = audioCtx.createAnalyser();
+  analyserNode.fftSize = 256;
+  gainNode.connect(analyserNode);
+  analyserNode.connect(audioCtx.destination);
+
+  startWaveform();
+
+  setStatus(`Generating ${CHUNKS.length} segments…`);
+
+  // Generate all chunks sequentially (to avoid rate limits)
+  for (let i = 0; i < CHUNKS.length; i++) {
+    if (isStopped) break;
+    chunkStatus[i] = "loading";
+    setPipState(i, "loading");
+    setStatus(`Generating segment ${i+1} of ${CHUNKS.length}…`);
+    try {
+      const b64 = await generateChunk(i, apiKey);
+      const buf = base64PcmToAudioBuffer(b64, 24000, audioCtx);
+      audioBuffers[i] = buf;
+      audioBlobs[i] = base64PcmToBlob(b64);
+      chunkStatus[i] = "done";
+      setPipState(i, "done");
+
+      // Enable play after first chunk
+      if (i === 0 && !isPlaying) {
+        mergeDone();
+        document.getElementById("playPauseBtn").disabled = false;
+        setStatus("Ready — playing…");
+        startPlayback(0);
+      } else if (i > 0) {
+        mergeDone();
+      }
+    } catch (e) {
+      if (isStopped) break;
+      chunkStatus[i] = "error";
+      setPipState(i, "");
+      setStatus(`Error on segment ${i+1}: ${e.message}`);
+      console.error(e);
+    }
+  }
+
+  if (!isStopped) {
+    setStatus("All segments generated ✦");
+  }
+  isGenerating = false;
+  document.getElementById("generateBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = true;
+}
+
+function mergeDone() {
+  const done = audioBuffers.filter(Boolean);
+  if (done.length === 0) return;
+  masterBuffer = mergeBuffers(done, audioCtx);
+  const total = masterBuffer.duration;
+  document.getElementById("totalTime").textContent = formatTime(total);
+}
+
+function stopAll() {
+  isStopped = true;
+  stopPlayback();
+  isGenerating = false;
+  document.getElementById("generateBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = true;
+  setStatus("Stopped.");
+}
+
+// ── Playback ──────────────────────────────────────────────────────────
+function startPlayback(offset) {
+  if (!masterBuffer || !audioCtx) return;
+  stopPlayback(false);
+  currentSource = audioCtx.createBufferSource();
+  currentSource.buffer = masterBuffer;
+  currentSource.playbackRate.value = playbackSpeed;
+  currentSource.connect(gainNode);
+  playStartOffset = Math.min(offset, masterBuffer.duration);
+  playStartTime = audioCtx.currentTime;
+  currentSource.start(0, playStartOffset);
+  isPlaying = true;
+  document.getElementById("playPauseBtn").textContent = "⏸";
+  currentSource.onended = () => {
+    if (isPlaying) {
+      isPlaying = false;
+      document.getElementById("playPauseBtn").textContent = "▶";
+      playStartOffset = 0;
+    }
+  };
+  startProgressLoop();
+}
+
+function stopPlayback(resetFlag = true) {
+  if (currentSource) {
+    try { currentSource.stop(); } catch(e) {}
+    currentSource = null;
+  }
+  if (resetFlag) {
+    isPlaying = false;
+    document.getElementById("playPauseBtn").textContent = "▶";
+  }
+  cancelAnimationFrame(rafId);
+}
+
+function togglePlay() {
+  if (!masterBuffer) return;
+  if (isPlaying) {
+    playStartOffset = getCurrentOffset();
+    stopPlayback();
+  } else {
+    startPlayback(playStartOffset);
+  }
+}
+
+function getCurrentOffset() {
+  if (!audioCtx || !isPlaying) return playStartOffset;
+  return playStartOffset + (audioCtx.currentTime - playStartTime) * playbackSpeed;
+}
+
+function skip(secs) {
+  const offset = Math.max(0, Math.min(getCurrentOffset() + secs, masterBuffer ? masterBuffer.duration : 0));
+  playStartOffset = offset;
+  if (isPlaying) startPlayback(offset);
+}
+
+function handleProgressInput(el) {
+  if (!masterBuffer) return;
+  const offset = (parseFloat(el.value) / 100) * masterBuffer.duration;
+  playStartOffset = offset;
+  if (isPlaying) startPlayback(offset);
+}
+
+function handleSeek(e) {
+  if (!masterBuffer) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const offset = pct * masterBuffer.duration;
+  playStartOffset = offset;
+  if (isPlaying) startPlayback(offset);
+}
+
+function setVolume(val) {
+  if (gainNode) gainNode.gain.value = parseFloat(val);
+  const pct = parseFloat(val) * 100;
+  document.getElementById("volumeSlider").style.setProperty("--vpct", pct + "%");
+}
+
+function changeSpeed(delta) {
+  playbackSpeed = Math.max(0.5, Math.min(2.0, playbackSpeed + delta));
+  playbackSpeed = Math.round(playbackSpeed * 4) / 4;
+  document.getElementById("speedLabel").textContent = playbackSpeed.toFixed(2) + "×";
+  if (isPlaying) {
+    const off = getCurrentOffset();
+    startPlayback(off);
+  }
+}
+
+// ── Progress loop ─────────────────────────────────────────────────────
+function startProgressLoop() {
+  cancelAnimationFrame(rafId);
+  function tick() {
+    if (!masterBuffer) { rafId = requestAnimationFrame(tick); return; }
+    const offset = getCurrentOffset();
+    const dur = masterBuffer.duration;
+    const pct = dur > 0 ? (offset / dur) * 100 : 0;
+    const bar = document.getElementById("progressBar");
+    bar.value = pct;
+    bar.style.setProperty("--pct", pct + "%");
+    document.getElementById("currentTime").textContent = formatTime(offset);
+
+    // Highlight paragraph
+    highlightParagraph(offset / dur);
+
+    rafId = requestAnimationFrame(tick);
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function highlightParagraph(progress) {
+  const idx = Math.floor(progress * paragraphs.length);
+  paragraphs.forEach((p, i) => {
+    p.className = i < idx ? "past-para" : i === idx ? "active-para" : "";
+  });
+  const active = paragraphs[idx];
+  if (active) {
+    const wrap = document.getElementById("storyText");
+    const top = active.offsetTop - wrap.offsetTop - wrap.clientHeight / 2 + active.clientHeight / 2;
+    wrap.scrollTop = Math.max(0, top);
+  }
+}
+
+// ── Waveform visualiser ───────────────────────────────────────────────
+function startWaveform() {
+  const canvas = document.getElementById("waveformCanvas");
+  const ctx2d = canvas.getContext("2d");
+  canvas.width = canvas.offsetWidth * devicePixelRatio;
+  canvas.height = canvas.offsetHeight * devicePixelRatio;
+  const W = canvas.width, H = canvas.height;
+
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx2d.clearRect(0, 0, W, H);
+
+    if (!analyserNode) {
+      // Draw idle line
+      ctx2d.beginPath();
+      ctx2d.strokeStyle = "rgba(200,96,42,0.25)";
+      ctx2d.lineWidth = 1.5;
+      ctx2d.moveTo(0, H/2);
+      ctx2d.lineTo(W, H/2);
+      ctx2d.stroke();
+      return;
+    }
+
+    const bufLen = analyserNode.frequencyBinCount;
+    const data = new Uint8Array(bufLen);
+    analyserNode.getByteTimeDomainData(data);
+
+    ctx2d.beginPath();
+    const sliceW = W / bufLen;
+    let x = 0;
+    for (let i = 0; i < bufLen; i++) {
+      const v = data[i] / 128;
+      const y = (v * H) / 2;
+      if (i === 0) ctx2d.moveTo(x, y);
+      else ctx2d.lineTo(x, y);
+      x += sliceW;
+    }
+    ctx2d.strokeStyle = "rgba(200,96,42,0.7)";
+    ctx2d.lineWidth = 1.5 * devicePixelRatio;
+    ctx2d.shadowColor = "rgba(200,96,42,0.5)";
+    ctx2d.shadowBlur = 8;
+    ctx2d.stroke();
+    ctx2d.shadowBlur = 0;
+
+    // Mirror / fill
+    ctx2d.beginPath();
+    x = 0;
+    for (let i = 0; i < bufLen; i++) {
+      const v = data[i] / 128;
+      const y = H - (v * H) / 2;
+      if (i === 0) ctx2d.moveTo(x, y);
+      else ctx2d.lineTo(x, y);
+      x += sliceW;
+    }
+    ctx2d.strokeStyle = "rgba(138,180,212,0.2)";
+    ctx2d.lineWidth = 1 * devicePixelRatio;
+    ctx2d.stroke();
+  }
+  draw();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function formatTime(secs) {
+  if (!isFinite(secs)) return "0:00";
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m}:${s.toString().padStart(2,"0")}`;
+}
+
+// Init volume track style
+document.getElementById("volumeSlider").style.setProperty("--vpct", "100%");
+
+// Init waveform
+startWaveform();
+</script>
+</body>
+</html>

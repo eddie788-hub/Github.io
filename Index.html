@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Nexus Shop · Dynamic E‑commerce with Bots</title>
+  <!-- Google Fonts & simple reset -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f6fc;
+      font-family: 'Inter', sans-serif;
+      color: #0a1c2f;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* header area */
+    .shop-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .title-badge h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .title-badge p {
+      color: #4a627a;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+
+    .bot-panel-toggle {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-bot {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .btn-bot i {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .btn-bot:hover {
+      background: #eef2ff;
+      border-color: #94a3b8;
+      transform: translateY(-1px);
+    }
+
+    /* product grid — flexible 2-4 products */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    /* product card */
+    .product-card {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #eef2f8;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 36px -12px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-img {
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+      background-color: #eef3fc;
+      transition: transform 0.3s;
+    }
+
+    .product-info {
+      padding: 1.4rem 1.2rem 1.2rem;
+    }
+
+    .product-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .product-desc {
+      color: #475569;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin: 0.5rem 0 0.8rem;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 0.8rem 0 1rem;
+    }
+
+    .current-price {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #0f2b3d;
+    }
+
+    .old-price {
+      font-size: 0.9rem;
+      color: #8ca3bc;
+      text-decoration: line-through;
+    }
+
+    .stock-badge {
+      font-size: 0.7rem;
+      background: #e6f0fa;
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 40px;
+      font-weight: 500;
+      color: #1e4a76;
+    }
+
+    .add-to-cart {
+      width: 100%;
+      background: #1e3a5f;
+      border: none;
+      padding: 0.8rem 0;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .add-to-cart:hover {
+      background: #0f2c48;
+      transform: scale(0.98);
+    }
+
+    /* admin / changable area */
+    .control-panel {
+      background: white;
+      border-radius: 28px;
+      padding: 1.4rem 1.8rem;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+      border: 1px solid #e2edf7;
+    }
+
+    .panel-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .product-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+    }
+
+    .select-group {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .select-group label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #4b6b8f;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 20px;
+      border: 1px solid #cbdbe0;
+      background: #fefefe;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .apply-btn {
+      background: #2c5a8c;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.6rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .apply-btn:hover {
+      background: #1e4270;
+    }
+
+    /* bot zone (chat / assistant) */
+    .bots-area {
+      background: #f8fafd;
+      border-radius: 32px;
+      border: 1px solid #dce5ef;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .bots-header {
+      background: #eef3fc;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #dce5ef;
+      cursor: pointer;
+    }
+
+    .bots-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toggle-bots-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .bots-panel {
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .bot-message {
+      background: white;
+      border-radius: 24px;
+      padding: 0.8rem 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      border-left: 4px solid #2c5a8c;
+    }
+
+    .bot-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
+
+    .bot-btn {
+      background: #eef2ff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .bot-btn:hover {
+      background: #dfe6f5;
+    }
+
+    .cart-summary {
+      background: #ffffffdd;
+      backdrop-filter: blur(4px);
+      border-radius: 28px;
+      padding: 0.8rem 1.2rem;
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      border: 1px solid #cbdde9;
+    }
+
+    .cart-total {
+      background: #1e3a5f;
+      color: white;
+      padding: 0.3rem 0.9rem;
+      border-radius: 60px;
+      font-size: 0.8rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: 0.75rem;
+      color: #7b8ba3;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .product-selector { flex-direction: column; }
+      .bots-panel { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="shop-header">
+    <div class="title-badge">
+      <h1>✨ CHANGABLE BAZAAR</h1>
+      <p>dynamic catalog · AI bots · live adjustments</p>
+    </div>
+    <div class="bot-panel-toggle">
+      <button id="toggleBotsBtn" class="btn-bot">🤖 Toggle Bot Console</button>
+    </div>
+  </div>
+
+  <!-- PRODUCT GRID (dynamic) -->
+  <div id="productGrid" class="products-grid"></div>
+
+  <!-- Cart snapshot -->
+  <div id="cartSnap" class="cart-summary">
+    <span>🛒 Your cart</span>
+    <span id="cartCount">0 items</span>
+    <span id="cartTotalPrice" class="cart-total">$0.00</span>
+  </div>
+
+  <!-- ADMIN / CHANGEABLE SECTION -->
+  <div class="control-panel">
+    <div class="panel-title">🔄 Change product data (real-time)</div>
+    <div class="product-selector">
+      <div class="select-group">
+        <label>📦 Select product</label>
+        <select id="productSelect"></select>
+      </div>
+      <div class="select-group">
+        <label>🏷️ New name</label>
+        <input type="text" id="productNameInput" placeholder="e.g., UltraBoost">
+      </div>
+      <div class="select-group">
+        <label>💰 Price ($)</label>
+        <input type="number" id="productPriceInput" step="0.01" placeholder="49.99">
+      </div>
+      <div class="select-group">
+        <label>📝 Description (short)</label>
+        <input type="text" id="productDescInput" placeholder="awesome details...">
+      </div>
+      <div class="select-group">
+        <label>🖼️ Image URL (background)</label>
+        <input type="text" id="productImageInput" placeholder="https://picsum.photos/300/200?random">
+      </div>
+      <button id="applyChangesBtn" class="apply-btn">✏️ Apply Changes</button>
+    </div>
+    <div style="font-size:0.75rem; color:#5c7c9a; margin-top:8px;">💡 Tip: You can also change number of products (2-4) using bot commands below!</div>
+  </div>
+
+  <!-- BOTS SECTION (collapsible) -->
+  <div id="botsSection" class="bots-area">
+    <div class="bots-header" id="botsHeaderToggle">
+      <h3>🤖 · SMART BOTS (assistants) · 🤖</h3>
+      <span class="toggle-bots-btn" id="botsCollapseIcon">▼</span>
+    </div>
+    <div id="botsContent" class="bots-panel">
+      <div class="bot-message">
+        <strong>🛍️ Sales Bot</strong><br>
+        👋 Hi! I can modify products, adjust stock, or change product count (2–4). Use the buttons below.
+      </div>
+      <div class="bot-actions">
+        <button class="bot-btn" data-bot-action="randomizePrices">🎲 Randomize all prices</button>
+        <button class="bot-btn" data-bot-action="resetProducts">🔄 Reset to default catalog</button>
+        <button class="bot-btn" data-bot-action="clearCart">🗑️ Empty cart</button>
+        <button class="bot-btn" data-bot-action="addRandomProduct">✨ Add new random product (max 4)</button>
+        <button class="bot-btn" data-bot-action="removeLastProduct">➖ Remove last product (min 2)</button>
+      </div>
+      <div class="bot-message">
+        <strong>📊 Inventory Bot</strong><br>
+        Current product count: <span id="botProductCount">0</span> | Last action feedback: <span id="botFeedback">—</span>
+      </div>
+    </div>
+  </div>
+  <footer>⚡ Fully dynamic e‑commerce · bots affect catalog & cart · all changes reflect instantly</footer>
+</div>
+
+<script>
+  // ---------- DATA LAYER ----------
+  let products = [
+    {
+      id: "p1",
+      name: "AeroGlide Sneakers",
+      price: 89.99,
+      oldPrice: 129.99,
+      description: "Breathable mesh, ultra-light cushioning, perfect for running.",
+      imageUrl: "https://picsum.photos/id/20/300/200",  // shoes vibe
+      stock: 12
+    },
+    {
+      id: "p2",
+      name: "Minimalist Backpack",
+      price: 49.99,
+      oldPrice: 79.99,
+      description: "Water-resistant, 20L capacity, laptop sleeve.",
+      imageUrl: "https://picsum.photos/id/133/300/200",
+      stock: 8
+    },
+    {
+      id: "p3",
+      name: "Wireless Earbuds Pro",
+      price: 119.99,
+      oldPrice: 159.99,
+      description: "Active noise canceling, 30h battery life.",
+      imageUrl: "https://picsum.photos/id/1/300/200",
+      stock: 25
+    }
+  ];
+  // enforce range 2-4 products
+  function enforceProductRange() {
+    if (products.length < 2) {
+      // duplicate last product as fallback (keep at least 2)
+      const last = products[products.length-1];
+      if(last) products.push({...last, id: last.id+"_copy", name: last.name+" (copy)"});
+      else products.push({ id:"p_fallback", name:"Core Item", price:29.99, oldPrice:49.99, description:"Essential", imageUrl:"https://picsum.photos/id/26/300/200", stock:5 });
+    }
+    if (products.length > 4) {
+      products = products.slice(0,4);
+    }
+    // update product select options
+    updateProductSelect();
+    renderProductGrid();
+    updateCartUI();
+    updateBotStats();
+  }
+
+  let cart = []; // each item { productId, quantity, priceSnapshot }
+
+  // Helper: find product by id
+  function findProductIndex(id) { return products.findIndex(p => p.id === id); }
+  function findProductById(id) { return products.find(p => p.id === id); }
+
+  // render product grid
+  function renderProductGrid() {
+    const grid = document.getElementById('productGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    products.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.dataset.id = product.id;
+      const imgStyle = `background-image: url('${product.imageUrl}'); background-size: cover;`;
+      const inCartItem = cart.find(c => c.productId === product.id);
+      const qtyInCart = inCartItem ? inCartItem.quantity : 0;
+      card.innerHTML = `
+        <div class="product-img" style="${imgStyle}"></div>
+        <div class="product-info">
+          <div class="product-title">${escapeHtml(product.name)}</div>
+          <div class="product-desc">${escapeHtml(product.description)}</div>
+          <div class="price-row">
+            <span class="current-price">$${product.price.toFixed(2)}</span>
+            ${product.oldPrice ? `<span class="old-price">$${product.oldPrice.toFixed(2)}</span>` : ''}
+          </div>
+          <div><span class="stock-badge">📦 stock: ${product.stock}</span></div>
+          <button class="add-to-cart" data-id="${product.id}">🛒 Add to Cart ${qtyInCart > 0 ? `(${qtyInCart})` : ''}</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+    // attach add-to-cart events
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const pid = btn.getAttribute('data-id');
+        addToCart(pid);
+      });
+    });
+  }
+
+  function addToCart(productId) {
+    const prod = findProductById(productId);
+    if (!prod) return;
+    const existing = cart.find(item => item.productId === productId);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ productId: productId, quantity: 1, priceSnapshot: prod.price });
+    }
+    updateCartUI();
+    renderProductGrid();   // refresh cart badge on button
+    botFeedbackMsg(`Added 1x ${prod.name} to cart.`);
+  }
+
+  function updateCartUI() {
+    const cartCountSpan = document.getElementById('cartCount');
+    const cartTotalSpan = document.getElementById('cartTotalPrice');
+    let totalItems = 0;
+    let totalValue = 0;
+    cart.forEach(item => {
+      totalItems += item.quantity;
+      const prod = findProductById(item.productId);
+      const price = prod ? prod.price : item.priceSnapshot;
+      totalValue += price * item.quantity;
+    });
+    if (cartCountSpan) cartCountSpan.innerText = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+    if (cartTotalSpan) cartTotalSpan.innerText = `$${totalValue.toFixed(2)}`;
+  }
+
+  function clearCart() {
+    cart = [];
+    updateCartUI();
+    renderProductGrid();
+    botFeedbackMsg("Cart emptied by bot.");
+  }
+
+  // Change product data (admin / changeable)
+  let currentSelectedProductId = null;
+  function updateProductSelect() {
+    const selectEl = document.getElementById('productSelect');
+    if (!selectEl) return;
+    selectEl.innerHTML = '';
+    products.forEach(prod => {
+      const option = document.createElement('option');
+      option.value = prod.id;
+      option.textContent = `${prod.name} ($${prod.price})`;
+      selectEl.appendChild(option);
+    });
+    if (products.length > 0 && !currentSelectedProductId) currentSelectedProductId = products[0].id;
+    if (currentSelectedProductId && findProductById(currentSelectedProductId)) {
+      selectEl.value = currentSelectedProductId;
+    } else if (products.length) {
+      selectEl.value = products[0].id;
+      currentSelectedProductId = products[0].id;
+    }
+    // fill inputs from selected product
+    fillInputsFromSelected();
+  }
+
+  function fillInputsFromSelected() {
+    const selectedProd = findProductById(currentSelectedProductId);
+    if (selectedProd) {
+      document.getElementById('productNameInput').value = selectedProd.name;
+      document.getElementById('productPriceInput').value = selectedProd.price;
+      document.getElementById('productDescInput').value = selectedProd.description;
+      document.getElementById('productImageInput').value = selectedProd.imageUrl;
+    }
+  }
+
+  function applyChangesToProduct() {
+    if (!currentSelectedProductId) return;
+    const idx = findProductIndex(currentSelectedProductId);
+    if (idx === -1) return;
+    const newName = document.getElementById('productNameInput').value.trim();
+    const newPrice = parseFloat(document.getElementById('productPriceInput').value);
+    const newDesc = document.getElementById('productDescInput').value.trim();
+    const newImg = document.getElementById('productImageInput').value.trim();
+    if (newName) products[idx].name = newName;
+    if (!isNaN(newPrice) && newPrice >= 0) products[idx].price = newPrice;
+    if (newDesc) products[idx].description = newDesc;
+    if (newImg) products[idx].imageUrl = newImg;
+    // optional: update old price? keep consistency.
+    if (products[idx].oldPrice && products[idx].price < products[idx].oldPrice) {
+      // keep old price for discount vibe, but no forced change
+    }
+    // re-render
+    renderProductGrid();
+    updateProductSelect(); // refresh select options text
+    updateCartUI(); // in case prices changed, cart totals need refresh (priceSnapshot not updated for old items but we'll use latest product price)
+    // sync cart items with new product prices (optional)
+    cart.forEach(cartItem => {
+      const freshProd = findProductById(cartItem.productId);
+      if (freshProd) cartItem.priceSnapshot = freshProd.price;
+    });
+    updateCartUI();
+    botFeedbackMsg(`Product "${products[idx].name}" updated.`);
+  }
+
+  // ------ BOT actions -----
+  function randomizeAllPrices() {
+    products.forEach(p => {
+      let newPrice = Math.floor(Math.random() * (150 - 20 + 1) + 20);
+      newPrice = Math.round(newPrice * 100) / 100;
+      p.price = newPrice;
+      if(p.oldPrice && p.oldPrice < p.price) p.oldPrice = p.price + 10;
+      else if(!p.oldPrice) p.oldPrice = p.price + 15;
+    });
+    renderProductGrid();
+    updateProductSelect();
+    updateCartUI();
+    cart.forEach(cartItem => {
+      const prod = findProductById(cartItem.productId);
+      if(prod) cartItem.priceSnapshot = prod.price;
+    });
+    updateCartUI();
+    botFeedbackMsg("🎲 Bot randomized all product prices!");
+  }
+
+  function resetDefaultCatalog() {
+    products = [
+      { id: "p1", name: "AeroGlide Sneakers", price: 89.99, oldPrice: 129.99, description: "Breathable mesh, ultra-light cushioning.", imageUrl: "https://picsum.photos/id/20/300/200", stock: 12 },
+      { id: "p2", name: "Minimalist Backpack", price: 49.99, oldPrice: 79.99, description: "Water-resistant, 20L capacity.", imageUrl: "https://picsum.photos/id/133/300/200", stock: 8 },
+      { id: "p3", name: "Wireless Earbuds Pro", price: 119.99, oldPrice: 159.99, description: "Active noise canceling.", imageUrl: "https://picsum.photos/id/1/300/200", stock: 25 }
+    ];
+    enforceProductRange();
+    cart = [];
+    renderProductGrid();
+    updateProductSelect();
+    updateCartUI();
+    botFeedbackMsg("✅ Catalog reset to original 3 products, cart cleared.");
+  }
+
+  function addRandomProduct() {
+    if (products.length >= 4) {
+      botFeedbackMsg("❌ Max 4 products reached! Remove one first.");
+      return;
+    }
+    const newId = "p_rand_" + Date.now();
+    const randName = "Mystic Item " + (products.length+1);
+    const randPrice = Math.floor(Math.random() * 100 + 25);
+    products.push({
+      id: newId,
+      name: randName,
+      price: randPrice,
+      oldPrice: randPrice + 20,
+      description: "Bot-generated limited edition.",
+      imageUrl: `https://picsum.photos/id/${Math.floor(Math.random()*200)}/300/200`,
+      stock: 7
+    });
+    enforceProductRange();  // will slice if >4 but we just added one, so no issue
+    renderProductGrid();
+    updateProductSelect();
+    botFeedbackMsg(`➕ Bot added "${randName}" (${products.length} products now).`);
+  }
+
+  function removeLastProduct() {
+    if (products.length <= 2) {
+      botFeedbackMsg("⚠️ Minimum 2 products required. Cannot remove more.");
+      return;
+    }
+    const removed = products.pop();
+    // remove from cart any items of removed product
+    cart = cart.filter(c => c.productId !== removed.id);
+    enforceProductRange(); // ensure still >=2
+    renderProductGrid();
+    updateProductSelect();
+    updateCartUI();
+    botFeedbackMsg(`➖ Removed "${removed.name}". Now ${products.length} products.`);
+  }
+
+  function botFeedbackMsg(msg) {
+    const fbSpan = document.getElementById('botFeedback');
+    if (fbSpan) {
+      fbSpan.innerText = msg;
+      setTimeout(() => { if(fbSpan) fbSpan.innerText = "—"; }, 2500);
+    }
+  }
+
+  function updateBotStats() {
+    const countSpan = document.getElementById('botProductCount');
+    if(countSpan) countSpan.innerText = products.length;
+  }
+
+  // helper escape
+  function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+  // UI event listeners
+  document.getElementById('productSelect')?.addEventListener('change', (e) => {
+    currentSelectedProductId = e.target.value;
+    fillInputsFromSelected();
+  });
+  document.getElementById('applyChangesBtn')?.addEventListener('click', applyChangesToProduct);
+
+  // bot actions delegation
+  document.querySelectorAll('.bot-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const action = btn.getAttribute('data-bot-action');
+      if (action === 'randomizePrices') randomizeAllPrices();
+      else if (action === 'resetProducts') resetDefaultCatalog();
+      else if (action === 'clearCart') clearCart();
+      else if (action === 'addRandomProduct') addRandomProduct();
+      else if (action === 'removeLastProduct') removeLastProduct();
+      updateBotStats();
+    });
+  });
+
+  // bots panel collapsible
+  const botsContent = document.getElementById('botsContent');
+  const botsCollapseIcon = document.getElementById('botsCollapseIcon');
+  const toggleBotsBtn = document.getElementById('toggleBotsBtn');
+  function toggleBotsPanel() {
+    if (botsContent.classList.contains('hidden')) {
+      botsContent.classList.remove('hidden');
+      botsCollapseIcon.innerText = '▼';
+    } else {
+      botsContent.classList.add('hidden');
+      botsCollapseIcon.innerText = '▲';
+    }
+  }
+  document.getElementById('botsHeaderToggle')?.addEventListener('click', toggleBotsPanel);
+  toggleBotsBtn?.addEventListener('click', toggleBotsPanel);
+  
+  // initial setup
+  enforceProductRange();
+  updateBotStats();
+  // fill product select default
+  if(products.length) currentSelectedProductId = products[0].id;
+  updateProductSelect();
+  renderProductGrid();
+  updateCartUI();
+</script>
+</body>
+</html>

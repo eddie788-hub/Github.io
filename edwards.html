@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edward's Journey - Star Wars Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+            perspective: 400px;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .crawl-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            animation: crawl 30s linear forwards;
+        }
+        
+        .crawl {
+            color: #feda4a;
+            font-size: 2em;
+            font-weight: bold;
+            text-align: justify;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            transform: rotateX(25deg);
+            transform-origin: 50% 100%;
+        }
+        
+        .crawl p {
+            margin-bottom: 1.5em;
+            line-height: 1.5;
+        }
+        
+        .title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #4a9eff;
+            font-size: 4em;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            animation: fadeTitle 6s ease-in-out;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 10px, white, transparent);
+            background-size: 200px 200px;
+            animation: stars 120s linear infinite;
+        }
+        
+        .contact-info {
+            color: #4a9eff;
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 2em;
+        }
+        
+        @keyframes crawl {
+            0% {
+                top: 100%;
+            }
+            100% {
+                top: -200%;
+            }
+        }
+        
+        @keyframes fadeTitle {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
+        
+        @keyframes stars {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-200px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .crawl {
+                font-size: 1.3em;
+            }
+            
+            .title {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <div class="title">
+        EDWARD'S<br>JOURNEY
+    </div>
+    
+    <div class="crawl-container">
+        <div class="crawl">
+            <p>It is a time of struggle. Edward Houston, a 42-year-old warrior, fights daily battles against forces that would break lesser souls.</p>
+            
+            <p>HOMELESS. No family support. No identification to access the systems designed to help. No shelters. No traditional employment. No bank accounts. No food assistance.</p>
+            
+            <p>ONE MONTH CLEAN from the grip of addiction. Each day, a victory against alcoholism and narcotics that lurk in the shadows, always within reach.</p>
+            
+            <p>LIVING WITH SCHIZOPHRENIA. The confusion makes completing tasks difficult. The constant worry about what comes next—the next hour, the next day—creates stress that compounds every challenge.</p>
+            
+            <p>But Edward has not surrendered. Armed with donated, obsolete technology that crashes and freezes, he teaches himself the ways of CYBERSECURITY, WEB DEVELOPMENT, and BACKEND PROGRAMMING.</p>
+            
+            <p>Every day, he searches for Wi-Fi. A cup of coffee at McDonald's becomes a gateway to knowledge, a portal to a different future.</p>
+            
+            <p>He is building skills that will change his destiny. Learning code while others sleep. Studying security protocols on devices that barely function. Creating a path forward when all conventional roads are blocked.</p>
+            
+            <p>This is not just survival. This is transformation.</p>
+            
+            <p>One day at a time. One line of code at a time. One small act of support at a time.</p>
+            
+            <div class="contact-info">
+                <p>SUPPORT THE MISSION</p>
+                <p>Cash App: $eddieeddie2025</p>
+                <p>venmo: @ejh4you</p>      
+                <p> General Delevery    
+                    P.O.A Charles Swanson
+                    Monroe, LA 71202</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,2 @@
+Open in Android Studio and let it sync Gradle.
+If you want command-line builds, use Android Studio's Gradle or install Gradle locally.

@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A+ Electrical & Air - Simply the Best</title>
+    <!-- Use the Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a custom font family for Tailwind */
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Smooth scroll for anchor links */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Visitor Counter */
+        .visitor-counter {
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Chat Modal */
+        .chat-modal-overlay {
+            z-index: 1000;
+        }
+
+        /* Message bubble */
+        .message-bubble.user {
+            border-bottom-right-radius: 0;
+        }
+        
+        .message-bubble.ai {
+            border-bottom-left-radius: 0;
+        }
+        
+        /* Custom scrollbar for chat body */
+        .chat-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-body::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        .chat-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* Custom message box */
+        #messageBox {
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Visitor Counter -->
+    <div id="visitorCount" class="visitor-counter fixed bottom-2 right-2 px-2 py-1 text-xs font-mono text-gray-500 rounded-md">
+        001247
+    </div>
+
+    <!-- AI Assistant Character Mascot -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <div id="character" class="w-16 h-16 md:w-20 md:h-20 cursor-pointer p-1 rounded-full bg-orange-500 shadow-xl transition-transform duration-300 hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+        </div>
+    </div>
+    
+    <!-- Custom Message Box -->
+    <div id="messageBox" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 rounded-lg shadow-2xl z-50 transition-opacity duration-300 bg-white border border-gray-200">
+        <p id="messageText" class="text-center font-medium mb-4 text-gray-700"></p>
+        <button id="closeMessageBox" class="block w-full px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors">OK</button>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="chat-modal-overlay hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white w-11/12 max-w-xl h-4/5 max-h-[700px] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="bg-gray-900 text-white p-4 flex items-center justify-between">
+                <h3 class="text-xl font-bold">A+ AI Assistant</h3>
+                <button id="closeChat" class="text-2xl font-light hover:text-orange-400">×</button>
+            </div>
+            <div id="chatBody" class="flex-grow p-4 overflow-y-auto space-y-4">
+                <div class="chat-message ai text-left flex items-start gap-2">
+                    <div class="message-bubble ai bg-green-100 text-gray-800 p-4 rounded-xl max-w-[80%] shadow-sm">
+                        Hello! I'm your A+ Electrical & Air assistant. How can I help you today?
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex items-center gap-2">
+                <input type="text" id="chatInput" placeholder="Ask about our services..." class="flex-grow px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+                <button id="sendButton" class="px-6 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between">
+            <!-- Company Logo & Name -->
+            <div class="flex items-center space-x-2 mb-4 sm:mb-0">
+                <span class="text-4xl font-extrabold text-orange-500">A+</span>
+                <span class="text-2xl font-bold">Electrical & Air</span>
+            </div>
+            <!-- Contact Info & Navigation -->
+            <nav class="flex flex-col sm:flex-row items-center gap-6">
+                <a href="#services" class="text-lg font-medium hover:text-orange-500 transition-colors">Services</a>
+                <a href="#gallery" class="text-lg font-medium hover:text-orange-500 transition-colors">Our Work</a>
+                <a href="#contact" class="text-lg font-medium hover:text-orange-500 transition-colors">Contact Us</a>
+                <a href="tel:3183077349" class="cta-button px-5 py-2 bg-orange-500 text-gray-900 font-bold rounded-full shadow-md transition-transform duration-300 hover:scale-105 hover:bg-orange-600">
+                    Call Today: (318) 307-7349
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main>
+        <div class="relative bg-cover bg-center h-96 md:h-[600px] flex items-center justify-center text-center text-white" 
+            style="background-image: url('https://placehold.co/1920x1080/4F46E5/FFFFFF?text=A%2B%20Electrical%20Service%20Truck');">
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div class="relative container mx-auto px-4">
+                <h1 class="text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-lg">
+                    "Simply the Best"
+                </h1>
+                <p class="text-lg sm:text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-lg">
+                    One Call For All Your Service Needs Since 1980
+                </p>
+                <a href="#contact" class="inline-block mt-8 px-8 py-3 bg-orange-500 text-gray-900 font-bold text-xl rounded-full shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-orange-600">
+                    Get a Free Estimate
+                </a>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <section id="services" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
+                    Our Services
+                </h2>
+                <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">
+                    Licensed and Insured. We specialize in comprehensive electrical and air solutions for homes and businesses.
+                </p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Service Card 1: Electrical -->
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+                        <div class="flex justify-center mb-4 text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">Electrical Work</h3>
+                        <p class="text-gray-600">
+                            Professional electrical installations, repairs, and maintenance for residential and commercial properties.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 2: HVAC -->
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+                        <div class="flex justify-center mb-4 text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">HVAC & Air</h3>
+                        <p class="text-gray-600">
+                            Expert installation and repair of heating, air conditioning, and refrigeration systems.
+                        </p>
+                    </div>
+                    
+                    <!-- Service Card 3: Commercial & Residential -->
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+                        <div class="flex justify-center mb-4 text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">Commercial & Residential</h3>
+                        <p class="text-gray-600">
+                            Serving both commercial businesses and residential homeowners with the same high quality of service.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 4: Building Maintenance -->
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+                        <div class="flex justify-center mb-4 text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">Building Maintenance</h3>
+                        <p class="text-gray-600">
+                            Comprehensive building maintenance and repair services to keep your property in top condition.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Gallery/Our Work Section -->
+        <section id="gallery" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
+                    Our Work
+                </h2>
+                <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">
+                    A glimpse into our commitment to quality and safety on every job.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Gallery Image 1: AC Unit -->
+                    <div class="gallery-item rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+                        <img src="https://placehold.co/600x400/94A3B8/FFFFFF?text=AC%20Installation" alt="AC unit installation" class="w-full h-64 object-cover">
+                    </div>
+                    <!-- Gallery Image 2: Service Truck -->
+                    <div class="gallery-item rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+                        <img src="https://placehold.co/600x400/312E81/FFFFFF?text=Service%20Truck" alt="Electrical service truck" class="w-full h-64 object-cover">
+                    </div>
+                    <!-- Gallery Image 3: Building Exterior -->
+                    <div class="gallery-item rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+                        <img src="https://placehold.co/600x400/5A67D8/FFFFFF?text=Electrical%20Work" alt="Building electrical work" class="w-full h-64 object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                        Contact Us for a Free Estimate
+                    </h2>
+                    <p class="text-lg text-gray-600 mt-2">
+                        Ready to get started? We're available for all your electrical and air needs.
+                    </p>
+                </div>
+                
+                <div class="max-w-xl mx-auto p-8 bg-gray-50 rounded-2xl shadow-xl">
+                    <form id="contactForm" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="name" name="name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea id="message" name="message" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full py-3 bg-orange-500 text-white rounded-lg font-bold text-lg shadow-md hover:bg-orange-600 transition-colors">
+                                Request a Free Estimate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-gray-400 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">© 2025 A+ Electrical & Air. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatButton = document.getElementById('character');
+            const chatModal = document.getElementById('chatModal');
+            const closeChat = document.getElementById('closeChat');
+            const chatBody = document.getElementById('chatBody');
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            const closeMessageBoxButton = document.getElementById('closeMessageBox');
+
+            // --- Chatbot Functionality ---
+            
+            // Function to display messages in the chat
+            function displayMessage(message, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('chat-message', `text-${sender === 'user' ? 'right' : 'left'}`, 'mb-4');
+                const bubble = document.createElement('div');
+                bubble.classList.add('inline-block', 'py-3', 'px-5', 'rounded-2xl', 'max-w-[80%]', 'break-words', 'shadow-sm', 'relative');
+                
+                if (sender === 'user') {
+                    bubble.classList.add('bg-orange-100', 'text-gray-800', 'message-bubble', 'user');
+                } else {
+                    bubble.classList.add('bg-green-100', 'text-gray-800', 'message-bubble', 'ai');
+                }
+                
+                bubble.textContent = message;
+                messageElement.appendChild(bubble);
+                chatBody.appendChild(messageElement);
+                
+                // Scroll to the bottom
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            // Function to handle sending a message
+            async function sendMessage() {
+                const userMessage = chatInput.value.trim();
+                if (!userMessage) return;
+
+                // Display user message and clear input
+                displayMessage(userMessage, 'user');
+                chatInput.value = '';
+
+                // Show a "typing" indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.classList.add('chat-message', 'ai', 'text-left', 'flex', 'items-start', 'gap-2', 'mb-4');
+                typingIndicator.innerHTML = '<div class="message-bubble ai bg-green-100 text-gray-800 p-3 rounded-2xl animate-pulse">...</div>';
+                chatBody.appendChild(typingIndicator);
+                chatBody.scrollTop = chatBody.scrollHeight;
+                
+                const prompt = `You are an AI assistant for a business named "A+ Electrical & Air". Your tone should be friendly, knowledgeable, and helpful. You can answer questions about electrical services, HVAC (heating, ventilation, and air conditioning) services, commercial and residential work, and building maintenance. Do not discuss anything outside of these topics. If asked about something else, politely say you can only help with A+ Electrical & Air's services. Do not provide a phone number or contact information. Keep your responses concise and to the point.
+                
+                User: ${userMessage}
+                Assistant:`;
+
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                };
+                
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('API call failed with status: ' + response.status);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && 
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        
+                        const aiResponse = result.candidates[0].content.parts[0].text;
+                        
+                        // Remove the typing indicator before displaying the response
+                        chatBody.removeChild(typingIndicator);
+                        displayMessage(aiResponse, 'ai');
+                    } else {
+                        throw new Error('Unexpected API response structure.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching AI response:', error);
+                    chatBody.removeChild(typingIndicator);
+                    displayMessage('Sorry, I am having trouble connecting right now. Please try again later.', 'ai');
+                }
+            }
+
+            // --- Event Listeners for Chat Modal ---
+            chatButton.addEventListener('click', () => {
+                chatModal.classList.remove('hidden');
+                chatInput.focus();
+            });
+
+            closeChat.addEventListener('click', () => {
+                chatModal.classList.add('hidden');
+            });
+
+            chatModal.addEventListener('click', (e) => {
+                if (e.target === chatModal) {
+                    chatModal.classList.add('hidden');
+                }
+            });
+
+            sendButton.addEventListener('click', sendMessage);
+            
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // --- Form Submission and Validation ---
+            const contactForm = document.getElementById('contactForm');
+
+            function showMessageBox(message) {
+                messageText.textContent = message;
+                messageBox.classList.remove('hidden');
+                messageBox.classList.add('opacity-100', 'scale-100');
+            }
+
+            closeMessageBoxButton.addEventListener('click', () => {
+                messageBox.classList.add('hidden');
+            });
+
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(contactForm);
+                const name = formData.get('name');
+                const email = formData.get('email');
+                const phone = formData.get('phone');
+                const message = formData.get('message');
+                
+                if (!name || !email || !phone || !message) {
+                    showMessageBox('Please fill in all fields.');
+                    return;
+                }
+                
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showMessageBox('Please enter a valid email address.');
+                    return;
+                }
+                
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Sending...';
+                submitButton.disabled = true;
+                
+                setTimeout(() => {
+                    showMessageBox('Thank you for your message! We\'ll contact you soon.');
+                    contactForm.reset();
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                }, 2000);
+            });
+
+            // --- Visitor Counter ---
+            let visitorCount = 1247;
+            const visitorElement = document.getElementById('visitorCount');
+            
+            // Increment visitor count randomly
+            setInterval(() => {
+                if (Math.random() > 0.7) { 
+                    visitorCount++;
+                    visitorElement.textContent = visitorCount.toString().padStart(6, '0');
+                }
+            }, 30000 + Math.random() * 30000);
+
+            // --- Smooth Scrolling for Navigation ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // --- Ripple Effect for Buttons and CTAs ---
+            function applyRipple(element) {
+                element.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.4);
+                        transform: scale(0);
+                        animation: ripple-effect 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            }
+
+            document.querySelectorAll('button, .cta-button, .hero-cta').forEach(applyRipple);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple-effect {
+                    to { transform: scale(2); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
+
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+
+import { Search, Code2, Copy, Check, RefreshCw, Settings2, FileCode2, Terminal, User, FileText } from 'lucide-react';
+
+
+// --- OmniTemplate Engine Logic ---
+
+
+// Helper to generate dynamic context for "new every time" templates
+
+const generateContext = (projectName, authorName) => {
+
+const dateObj = new Date();
+
+const randomTips = [
+
+"Implement core logic here.",
+
+"TODO: Add robust error handling.",
+
+"Consider writing unit tests for this module.",
+
+"Optimize performance if data size grows.",
+
+"Ensure security best practices are followed.",
+
+"Refactor into smaller functions if complexity increases."
+
+];
+
+
+return {
+
+projectName: projectName || 'UntitledProject',
+
+authorName: authorName || 'OmniDev',
+
+date: dateObj.toISOString().split('T')[0],
+
+time: dateObj.toTimeString().split(' ')[0],
+
+buildHash: Math.random().toString(36).substring(2, 10).toUpperCase(),
+
+tip: randomTips[Math.floor(Math.random() * randomTips.length)],
+
+camelProject: (projectName || 'UntitledProject').replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()).replace(/^[a-z]/, c => c.toUpperCase()),
+
+lowerProject: (projectName || 'untitled_project').toLowerCase().replace(/[^a-z0-9]+/g, '_')
+
+};
+
+};
+
+
+// Dictionary of language templates
+
+const templates = {
+
+python: (ctx) => `#!/usr/bin/env python3
+
+# -*- coding: utf-8 -*-
+
+"""
+
+Project: ${ctx.projectName}
+
+Module: Main Entry Point
+
+Author: ${ctx.authorName}
+
+Generated: ${ctx.date} ${ctx.time} | Build: ${ctx.buildHash}
+
+"""
+
+
+import sys
+
+import os
+
+import logging
+
+
+# Configure basic logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+def main() -> int:
+
+"""Main execution function."""
+
+logging.info("Starting ${ctx.projectName}...")
+
+# ${ctx.tip}
+
+return 0
+
+
+if __name__ == '__main__':
+
+try:
+
+sys.exit(main())
+
+except KeyboardInterrupt:
+
+logging.info("Process interrupted by user. Exiting.")
+
+sys.exit(130)
+
+except Exception as e:
+
+logging.error(f"An unexpected error occurred: {e}")
+
+sys.exit(1)
+
+`,
+
+javascript: (ctx) => `/**
+
+* Project: ${ctx.projectName}
+
+* Author: ${ctx.authorName}
+
+* Created: ${ctx.date} ${ctx.time}
+
+* Build ID: ${ctx.buildHash}
+
+*/
+
+
+'use strict';
+
+
+/**
+
+* Initializes the main application logic.
+
+*/
+
+const init = async () => {
+
+console.log('Initializing ${ctx.projectName}...');
+
+try {
+
+// ${ctx.tip}
+
+} catch (error) {
+
+console.error('Initialization failed:', error);
+
+}
+
+};
+
+
+// Execute if running directly (Node.js/Browser compatibility check)
+
+if (typeof require !== 'undefined' && require.main === module) {
+
+init();
+
+} else if (typeof window !== 'undefined') {
+
+window.addEventListener('DOMContentLoaded', init);
+
+}
+
+
+export default init;
+
+`,
+
+typescript: (ctx) => `/**
+
+* Project: ${ctx.projectName}
+
+* Author: ${ctx.authorName}
+
+* Created: ${ctx.date} | Hash: ${ctx.buildHash}
+
+*/
+
+
+export interface AppConfig {
+
+debug: boolean;
+
+version: string;
+
+}
+
+
+export class ${ctx.camelProject} {
+
+private config: AppConfig;
+
+
+constructor(config?: Partial<AppConfig>) {
+
+this.config = {
+
+debug: false,
+
+version: '1.0.0',
+
+...config
+
+};
+
+}
+
+
+/**
+
+* Main execution method
+
+*/
+
+public async run(): Promise<void> {
+
+if (this.config.debug) {
+
+console.log('Running ${ctx.projectName} in debug mode...');
+
+}
+
+// ${ctx.tip}
+
+}
+
+}
+
+
+// Auto-instantiate if executed directly
+
+if (require.main === module) {
+
+const app = new ${ctx.camelProject}({ debug: true });
+
+app.run().catch(console.error);
+
+}
+
+`,
+
+react: (ctx) => `import React, { useState, useEffect, useCallback } from 'react';
+
+import PropTypes from 'prop-types';
+
+
+/**
+
+* Component: ${ctx.camelProject}
+
+* Author: ${ctx.authorName}
+
+* Date: ${ctx.date} | Build: ${ctx.buildHash}
+
+*/
+
+
+const ${ctx.camelProject} = ({ initialData = null }) => {
+
+const [data, setData] = useState(initialData);
+
+const [isLoading, setIsLoading] = useState(true);
+
+const [error, setError] = useState(null);
+
+
+const loadData = useCallback(async () => {
+
+setIsLoading(true);
+
+try {
+
+// ${ctx.tip}
+
+// Simulate fetch
+
+await new Promise(resolve => setTimeout(resolve, 500));
+
+setData({ status: 'ready', timestamp: Date.now() });
+
+} catch (err) {
+
+setError(err instanceof Error ? err.message : 'Unknown error');
+
+} finally {
+
+setIsLoading(false);
+
+}
+
+}, []);
+
+
+useEffect(() => {
+
+loadData();
+
+}, [loadData]);
+
+
+if (isLoading) return <div className="loading-spinner">Loading...</div>;
+
+if (error) return <div className="error-alert">Error: {error}</div>;
+
+
+return (
+
+<div className="${ctx.lowerProject}-container bg-white p-4 rounded-lg shadow">
+
+<h1 className="text-2xl font-bold">${ctx.projectName}</h1>
+
+<pre className="mt-4 p-2 bg-gray-100 rounded text-sm">
+
+{JSON.stringify(data, null, 2)}
+
+</pre>
+
+</div>
+
+);
+
+};
+
+
+${ctx.camelProject}.propTypes = {
+
+initialData: PropTypes.object
+
+};
+
+
+export default ${ctx.camelProject};
+
+`,
+
+html: (ctx) => `<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="description" content="${ctx.projectName} generated by OmniTemplate">
+
+<meta name="author" content="${ctx.authorName}">
+
+<!-- Build Hash: ${ctx.buildHash} | Date: ${ctx.date} -->
+
+<title>${ctx.projectName}</title>
+
+<style>
+
+:root {
+
+--primary-color: #2563eb;
+
+--bg-color: #f8fafc;
+
+--text-color: #0f172a;
+
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+
+font-family: system-ui, -apple-system, sans-serif;
+
+background-color: var(--bg-color);
+
+color: var(--text-color);
+
+line-height: 1.6;
+
+padding: 2rem;
+
+}
+
+.container { max-width: 800px; margin: 0 auto; }
+
+header { border-bottom: 2px solid var(--primary-color); padding-bottom: 1rem; margin-bottom: 2rem; }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+
+<h1>${ctx.projectName}</h1>
+
+<p>Welcome to your new project.</p>
+
+</header>
+
+
+<main>
+
+<section id="content">
+
+<!-- ${ctx.tip} -->
+
+<p>Generated successfully on ${ctx.date}. Start building here.</p>
+
+</section>
+
+</main>
+
+
+<footer style="margin-top: 3rem; font-size: 0.875rem; color: #64748b;">
+
+&copy; ${ctx.date.split('-')[0]} ${ctx.authorName}. All rights reserved.
+
+</footer>
+
+</div>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+
+console.log('${ctx.projectName} initialized.');
+
+});
+
+</script>
+
+</body>
+
+</html>
+
+`,
+
+css: (ctx) => `/*
+
+* Stylesheet: ${ctx.projectName}
+
+* Author: ${ctx.authorName}
+
+* Date: ${ctx.date} | Build: ${ctx.buildHash}
+
+*/
+
+
+/* ==========================================================================
+
+CSS Reset / Normalize
+
+========================================================================== */
+
+*, *::before, *::after {
+
+box-sizing: border-box;
+
+margin: 0;
+
+padding: 0;
+
+}
+
+
+/* ==========================================================================
+
+Variables
+
+========================================================================== */
+
+:root {
+
+--color-primary: #3b82f6;
+
+--color-secondary: #64748b;
+
+--color-background: #ffffff;
+
+--color-text: #0f172a;
+
+--font-primary: 'Inter', system-ui, sans-serif;
+
+--transition-speed: 0.3s ease;
+
+}
+
+
+/* ==========================================================================
+
+Base Styles
+
+========================================================================== */
+
+html, body {
+
+height: 100%;
+
+font-family: var(--font-primary);
+
+background-color: var(--color-background);
+
+color: var(--color-text);
+
+line-height: 1.5;
+
+}
+
+
+/* ==========================================================================
+
+Components
+
+========================================================================== */
+
+.${ctx.lowerProject}-container {
+
+max-width: 1200px;
+
+margin: 0 auto;
+
+padding: 2rem;
+
+}
+
+
+/* ${ctx.tip} */
+
+`,
+
+java: (ctx) => `/**
+
+* Project: ${ctx.projectName}
+
+* Class}: Main
+
+* Author: ${ctx.authorName}
+
+* Date: ${ctx
+
+
+I have upgraded the OmniWorkspace OS to a "Commercial-Grade" environment. This version introduces a functional VFS (Virtual File System) with an interactive editor where clicking code lines triggers dependency detection.
+
+I've also integrated the Marketplace logic for feature extensions, the .connect protocol for server handshaking, and a SQLite3 schema for user profile persistence.
+
+Systems Overview:
+
+Dependency-Linked Editor: * The main.py file includes lines like import flask or import requests.
+
+Clicking a line triggers a detection logic that automatically appends that module to the requirements.txt file, simulating an "Auto-Install" feature that saves compute resources by only loading what you click.
+
+Monetized App Store:
+
+To keep the core workspace lightweight, "Advanced Features" (like AES-512 Encryption or Multi-Cloud bridging) are modular components.
+
+I've included a Commercial App Store overlay where you can exchange virtual credits to "unlock" these capabilities for your profile.
+
+Connection Protocol (.connect):
+
+The workspace includes a .connect configuration file. Clicking the "Run .connect" button in the sidebar initiates an asynchronous "Handshake" with a remote host.
+
+Database Persistence:
+
+The database.sql file shows the SQLite3 schema used on the company side to store your user profile, credit balance, and active tier.
+
+Professional Identity:
+
+Each session generates a unique Project Identity (e.g., NovaNexus_v4).
+
+The UI has been "hardened" to look like a professional development console, with kernel logs and system status indicators.
+
+You can now try clicking the "import flask" line in the editor and watch the requirements.txt file (in the sidebar) update automatically!
+
+I have upgraded the OmniWorkspace OS to a "Commercial-Grade" environment. This version introduces a functional VFS (Virtual File System) with an interactive editor where clicking code lines triggers dependency detection.
+
+I've also integrated the Marketplace logic for feature extensions, the .connect protocol for server handshaking, and a SQLite3 schema for user profile persistence.
+
+Systems Overview:
+
+Dependency-Linked Editor: * The main.py file includes lines like import flask or import requests.
+
+Clicking a line triggers a detection logic that automatically appends that module to the requirements.txt file, simulating an "Auto-Install" feature that saves compute resources by only loading what you click.
+
+Monetized App Store:
+
+To keep the core workspace lightweight, "Advanced Features" (like AES-512 Encryption or Multi-Cloud bridging) are modular components.
+
+I've included a Commercial App Store overlay where you can exchange virtual credits to "unlock" these capabilities for your profile.
+
+Connection Protocol (.connect):
+
+The workspace includes a .connect configuration file. Clicking the "Run .connect" button in the sidebar initiates an asynchronous "Handshake" with a remote host.
+
+Database Persistence:
+
+The database.sql file shows the SQLite3 schema used on the company side to store your user profile, credit balance, and active tier.
+
+Professional Identity:
+
+Each session generates a unique Project Identity (e.g., NovaNexus_v4).
+
+The UI has been "hardened" to look like a professional development console, with kernel logs and system status indicators.
+
+You can now try clicking the "import flask" line in the editor and watch the requirements.txt file (in the sidebar) update automatically!
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>A+ Electrical & Air - Simply the Best</title>
+
+    <!-- Use the Inter font from Google Fonts -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Load Tailwind CSS -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        /* Define a custom font family for Tailwind */
+
+        :root {
+
+            font-family: 'Inter', sans-serif;
+
+        }
+
+
+        /* Smooth scroll for anchor links */
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+        
+
+        /* Visitor Counter */
+
+        .visitor-counter {
+
+            z-index: 50;
+
+            background-color: rgba(255, 255, 255, 0.8);
+
+            backdrop-filter: blur(4px);
+
+        }
+
+
+        /* Chat Modal */
+
+        .chat-modal-overlay {
+
+            z-index: 1000;
+
+        }
+
+
+        /* Message bubble */
+
+        .message-bubble.user {
+
+            border-bottom-right-radius: 0;
+
+        }
+
+        
+
+        .message-bubble.ai {
+
+            border-bottom-left-radius: 0;
+
+        }
+
+        
+
+        /* Custom scrollbar for chat body */
+
+        .chat-body::-webkit-scrollbar {
+
+            width: 8px;
+
+        }
+
+        
+
+        .chat-body::-webkit-scrollbar-track {
+
+            background: #f1f5f9;
+
+            border-radius: 10px;
+
+        }
+
+        
+
+        .chat-body::-webkit-scrollbar-thumb {
+
+            background: #cbd5e1;
+
+            border-radius: 10px;
+
+        }
+
+
+        /* Custom message box */
+
+        #messageBox {
+
+            z-index: 2000;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+
+    <!-- Visitor Counter -->
+
+    <div id="visitorCount" class="visitor-counter fixed bottom-2 right-2 px-2 py-1 text-xs font-mono text-gray-500 rounded-md">
+
+        001247
+
+    </div>
+
+
+    <!-- AI Assistant Character Mascot -->
+
+    <div class="fixed bottom-4 right-4 z-40">
+
+        <div id="character" class="w-16 h-16 md:w-20 md:h-20 cursor-pointer p-1 rounded-full bg-orange-500 shadow-xl transition-transform duration-300 hover:scale-110">
+
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+
+            </svg>
+
+        </div>
+
+    </div>
+
+    
+
+    <!-- Custom Message Box -->
+
+    <div id="messageBox" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 rounded-lg shadow-2xl z-50 transition-opacity duration-300 bg-white border border-gray-200">
+
+        <p id="messageText" class="text-center font-medium mb-4 text-gray-700"></p>
+
+        <button id="closeMessageBox" class="block w-full px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors">OK</button>
+
+    </div>
+
+
+    <!-- Chat Modal -->
+
+    <div id="chatModal" class="chat-modal-overlay hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+
+        <div class="bg-white w-11/12 max-w-xl h-4/5 max-h-[700px] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+
+            <div class="bg-gray-900 text-white p-4 flex items-center justify-between">
+
+                <h3 class="text-xl font-bold">A+ AI Assistant</h3>
+
+                <button id="closeChat" class="text-2xl font-light hover:text-orange-400">×</button>
+
+            </div>
+
+            <div id="chatBody" class="flex-grow p-4 overflow-y-auto space-y-4">
+
+                <div class="chat-message ai text-left flex items-start gap-2">
+
+                    <div class="message-bubble ai bg-green-100 text-gray-800 p-4 rounded-xl max-w-[80%] shadow-sm">
+
+                        Hello! I'm your A+ Electrical & Air assistant. How can I help you today?
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="p-4 border-t border-gray-200 flex items-center gap-2">
+
+                <input type="text" id="chatInput" placeholder="Ask about our services..." class="flex-grow px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+
+                <button id="sendButton" class="px-6 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+
+                    Send
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Header Section -->
+
+    <header class="bg-gray-900 text-white shadow-lg sticky top-0 z-40">
+
+        <div class="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between">
+
+            <!-- Company Logo & Name -->
+
+            <div class="flex items-center space-x-2 mb-4 sm:mb-0">
+
+                <span class="text-4xl font-extrabold text-orange-500">A+</span>
+
+                <span class="text-2xl font-bold">Electrical & Air</span>
+
+            </div>
+
+            <!-- Contact Info & Navigation -->
+
+            <nav class="flex flex-col sm:flex-row items-center gap-6">
+
+                <a href="#services" class="text-lg font-medium hover:text-orange-500 transition-colors">Services</a>
+
+                <a href="#gallery" class="text-lg font-medium hover:text-orange-500 transition-colors">Our Work</a>
+
+                <a href="#contact" class="text-lg font-medium hover:text-orange-500 transition-colors">Contact Us</a>
+
+                <a href="tel:3183077349" class="cta-button px-5 py-2 bg-orange-500 text-gray-900 font-bold rounded-full shadow-md transition-transform duration-300 hover:scale-105 hover:bg-orange-600">
+
+                    Call Today: (318) 307-7349
+
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- Hero Section -->
+
+    <main>
+
+        <div class="relative bg-cover bg-center h-96 md:h-[600px] flex items-center justify-center text-center text-white" 
+
+            style="background-image: url('https://placehold.co/1920x1080/4F46E5/FFFFFF?text=A%2B%20Electrical%20Service%20Truck');">
+
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+
+            <div class="relative container mx-auto px-4">
+
+                <h1 class="text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-lg">
+
+                    "Simply the Best"
+
+                </h1>
+
+                <p class="text-lg sm:text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-lg">
+
+                    One Call For All Your Service Needs Since 1980
+
+                </p>
+
+                <a href="#contact" class="inline-block mt-8 px-8 py-3 bg-orange-500 text-gray-900 font-bold text-xl rounded-full shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-orange-600">
+
+                    Get a Free Estimate
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Services Section -->
+
+        <section id="services" class="py-16 md:py-24 bg-white">
+
+            <div class="container mx-auto px-4">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
+
+                    Our Services
+
+                </h2>
+
+                <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">
+
+                    Licensed and Insured. We specialize in comprehensive electrical and air solutions for homes and businesses.
+
+                </p>
+
+                
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                    <!-- Service Card 1: Electrical -->
+
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+
+                        <div class="flex justify-center mb-4 text-orange-500">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+
+                            </svg>
+
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">Electrical Work</h3>
+
+                        <p class="text-gray-600">
+
+                            Professional electrical installations, repairs, and maintenance for residential and commercial properties.
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- Service Card 2: HVAC -->
+
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+
+                        <div class="flex justify-center mb-4 text-orange-500">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+
+                            </svg>
+
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">HVAC & Air</h3>
+
+                        <p class="text-gray-600">
+
+                            Expert installation and repair of heating, air conditioning, and refrigeration systems.
+
+                        </p>
+
+                    </div>
+
+                    
+
+                    <!-- Service Card 3: Commercial & Residential -->
+
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+
+                        <div class="flex justify-center mb-4 text-orange-500">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819" />
+
+                            </svg>
+
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">Commercial & Residential</h3>
+
+                        <p class="text-gray-600">
+
+                            Serving both commercial businesses and residential homeowners with the same high quality of service.
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- Service Card 4: Building Maintenance -->
+
+                    <div class="service-card p-8 bg-gray-50 rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl text-center">
+
+                        <div class="flex justify-center mb-4 text-orange-500">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+
+                            </svg>
+
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-2 text-gray-900">Building Maintenance</h3>
+
+                        <p class="text-gray-600">
+
+                            Comprehensive building maintenance and repair services to keep your property in top condition.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        
+
+        <!-- Gallery/Our Work Section -->
+
+        <section id="gallery" class="py-16 md:py-24 bg-gray-100">
+
+            <div class="container mx-auto px-4">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
+
+                    Our Work
+
+                </h2>
+
+                <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">
+
+                    A glimpse into our commitment to quality and safety on every job.
+
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Gallery Image 1: AC Unit -->
+
+                    <div class="gallery-item rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+
+                        <img src="https://placehold.co/600x400/94A3B8/FFFFFF?text=AC%20Installation" alt="AC unit installation" class="w-full h-64 object-cover">
+
+                    </div>
+
+                    <!-- Gallery Image 2: Service Truck -->
+
+                    <div class="gallery-item rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+
+                        <img src="https://placehold.co/600x400/312E81/FFFFFF?text=Service%20Truck" alt="Electrical service truck" class="w-full h-64 object-cover">
+
+                    </div>
+
+                    <!-- Gallery Image 3: Building Exterior -->
+
+                    <div class="gallery-item rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+
+                        <img src="https://placehold.co/600x400/5A67D8/FFFFFF?text=Electrical%20Work" alt="Building electrical work" class="w-full h-64 object-cover">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Contact Section -->
+
+        <section id="contact" class="py-16 md:py-24 bg-white">
+
+            <div class="container mx-auto px-4">
+
+                <div class="text-center mb-12">
+
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+
+                        Contact Us for a Free Estimate
+
+                    </h2>
+
+                    <p class="text-lg text-gray-600 mt-2">
+
+                        Ready to get started? We're available for all your electrical and air needs.
+
+                    </p>
+
+                </div>
+
+                
+
+                <div class="max-w-xl mx-auto p-8 bg-gray-50 rounded-2xl shadow-xl">
+
+                    <form id="contactForm" class="space-y-6">
+
+                        <div>
+
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+
+                            <input type="text" id="name" name="name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+
+                        </div>
+
+                        <div>
+
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+
+                            <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+
+                        </div>
+
+                        <div>
+
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+
+                            <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow">
+
+                        </div>
+
+                        <div>
+
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+
+                            <textarea id="message" name="message" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-shadow"></textarea>
+
+                        </div>
+
+                        <div>
+
+                            <button type="submit" class="w-full py-3 bg-orange-500 text-white rounded-lg font-bold text-lg shadow-md hover:bg-orange-600 transition-colors">
+
+                                Request a Free Estimate
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer Section -->
+
+    <footer class="bg-gray-900 text-gray-400 py-8">
+
+        <div class="container mx-auto px-4 text-center">
+
+            <p class="text-sm">© 2025 A+ Electrical & Air. All rights reserved.</p>
+
+        </div>
+
+    </footer>
+
+    
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const chatButton = document.getElementById('character');
+
+            const chatModal = document.getElementById('chatModal');
+
+            const closeChat = document.getElementById('closeChat');
+
+            const chatBody = document.getElementById('chatBody');
+
+            const chatInput = document.getElementById('chatInput');
+
+            const sendButton = document.getElementById('sendButton');
+
+            const messageBox = document.getElementById('messageBox');
+
+            const messageText = document.getElementById('messageText');
+
+            const closeMessageBoxButton = document.getElementById('closeMessageBox');
+
+
+            // --- Chatbot Functionality ---
+
+            
+
+            // Function to display messages in the chat
+
+            function displayMessage(message, sender) {
+
+                const messageElement = document.createElement('div');
+
+                messageElement.classList.add('chat-message', `text-${sender === 'user' ? 'right' : 'left'}`, 'mb-4');
+
+                const bubble = document.createElement('div');
+
+                bubble.classList.add('inline-block', 'py-3', 'px-5', 'rounded-2xl', 'max-w-[80%]', 'break-words', 'shadow-sm', 'relative');
+
+                
+
+                if (sender === 'user') {
+
+                    bubble.classList.add('bg-orange-100', 'text-gray-800', 'message-bubble', 'user');
+
+                } else {
+
+                    bubble.classList.add('bg-green-100', 'text-gray-800', 'message-bubble', 'ai');
+
+                }
+
+                
+
+                bubble.textContent = message;
+
+                messageElement.appendChild(bubble);
+
+                chatBody.appendChild(messageElement);
+
+                
+
+                // Scroll to the bottom
+
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+            }
+
+
+            // Function to handle sending a message
+
+            async function sendMessage() {
+
+                const userMessage = chatInput.value.trim();
+
+                if (!userMessage) return;
+
+
+                // Display user message and clear input
+
+                displayMessage(userMessage, 'user');
+
+                chatInput.value = '';
+
+
+                // Show a "typing" indicator
+
+                const typingIndicator = document.createElement('div');
+
+                typingIndicator.classList.add('chat-message', 'ai', 'text-left', 'flex', 'items-start', 'gap-2', 'mb-4');
+
+                typingIndicator.innerHTML = '<div class="message-bubble ai bg-green-100 text-gray-800 p-3 rounded-2xl animate-pulse">...</div>';
+
+                chatBody.appendChild(typingIndicator);
+
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                
+
+                const prompt = `You are an AI assistant for a business named "A+ Electrical & Air". Your tone should be friendly, knowledgeable, and helpful. You can answer questions about electrical services, HVAC (heating, ventilation, and air conditioning) services, commercial and residential work, and building maintenance. Do not discuss anything outside of these topics. If asked about something else, politely say you can only help with A+ Electrical & Air's services. Do not provide a phone number or contact information. Keep your responses concise and to the point.
+
+                
+
+                User: ${userMessage}
+
+                Assistant:`;
+
+
+                const payload = {
+
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+
+                };
+
+                
+
+                const apiKey = "";
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+
+                try {
+
+                    const response = await fetch(apiUrl, {
+
+                        method: 'POST',
+
+                        headers: { 'Content-Type': 'application/json' },
+
+                        body: JSON.stringify(payload)
+
+                    });
+
+
+                    if (!response.ok) {
+
+                        throw new Error('API call failed with status: ' + response.status);
+
+                    }
+
+
+                    const result = await response.json();
+
+                    
+
+                    if (result.candidates && result.candidates.length > 0 && 
+
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+
+                        result.candidates[0].content.parts.length > 0) {
+
+                        
+
+                        const aiResponse = result.candidates[0].content.parts[0].text;
+
+                        
+
+                        // Remove the typing indicator before displaying the response
+
+                        chatBody.removeChild(typingIndicator);
+
+                        displayMessage(aiResponse, 'ai');
+
+                    } else {
+
+                        throw new Error('Unexpected API response structure.');
+
+                    }
+
+                } catch (error) {
+
+                    console.error('Error fetching AI response:', error);
+
+                    chatBody.removeChild(typingIndicator);
+
+                    displayMessage('Sorry, I am having trouble connecting right now. Please try again later.', 'ai');
+
+                }
+
+            }
+
+
+            // --- Event Listeners for Chat Modal ---
+
+            chatButton.addEventListener('click', () => {
+
+                chatModal.classList.remove('hidden');
+
+                chatInput.focus();
+
+            });
+
+
+            closeChat.addEventListener('click', () => {
+
+                chatModal.classList.add('hidden');
+
+            });
+
+
+            chatModal.addEventListener('click', (e) => {
+
+                if (e.target === chatModal) {
+
+                    chatModal.classList.add('hidden');
+
+                }
+
+            });
+
+
+            sendButton.addEventListener('click', sendMessage);
+
+            
+
+            chatInput.addEventListener('keydown', (e) => {
+
+                if (e.key === 'Enter') {
+
+                    e.preventDefault();
+
+                    sendMessage();
+
+                }
+
+            });
+
+
+            // --- Form Submission and Validation ---
+
+            const contactForm = document.getElementById('contactForm');
+
+
+            function showMessageBox(message) {
+
+                messageText.textContent = message;
+
+                messageBox.classList.remove('hidden');
+
+                messageBox.classList.add('opacity-100', 'scale-100');
+
+            }
+
+
+            closeMessageBoxButton.addEventListener('click', () => {
+
+                messageBox.classList.add('hidden');
+
+            });
+
+
+            contactForm.addEventListener('submit', function(e) {
+
+                e.preventDefault();
+
+                
+
+                const formData = new FormData(contactForm);
+
+                const name = formData.get('name');
+
+                const email = formData.get('email');
+
+                const phone = formData.get('phone');
+
+                const message = formData.get('message');
+
+                
+
+                if (!name || !email || !phone || !message) {
+
+                    showMessageBox('Please fill in all fields.');
+
+                    return;
+
+                }
+
+                
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailRegex.test(email)) {
+
+                    showMessageBox('Please enter a valid email address.');
+
+                    return;
+
+                }
+
+                
+
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+
+                const originalText = submitButton.textContent;
+
+                submitButton.textContent = 'Sending...';
+
+                submitButton.disabled = true;
+
+                
+
+                setTimeout(() => {
+
+                    showMessageBox('Thank you for your message! We\'ll contact you soon.');
+
+                    contactForm.reset();
+
+                    submitButton.textContent = originalText;
+
+                    submitButton.disabled = false;
+
+                }, 2000);
+
+            });
+
+
+            // --- Visitor Counter ---
+
+            let visitorCount = 1247;
+
+            const visitorElement = document.getElementById('visitorCount');
+
+            
+
+            // Increment visitor count randomly
+
+            setInterval(() => {
+
+                if (Math.random() > 0.7) { 
+
+                    visitorCount++;
+
+                    visitorElement.textContent = visitorCount.toString().padStart(6, '0');
+
+                }
+
+            }, 30000 + Math.random() * 30000);
+
+
+            // --- Smooth Scrolling for Navigation ---
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+
+                anchor.addEventListener('click', function (e) {
+
+                    e.preventDefault();
+
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+
+                        behavior: 'smooth'
+
+                    });
+
+                });
+
+            });
+
+
+            // --- Ripple Effect for Buttons and CTAs ---
+
+            function applyRipple(element) {
+
+                element.addEventListener('click', function(e) {
+
+                    const ripple = document.createElement('span');
+
+                    const rect = this.getBoundingClientRect();
+
+                    const size = Math.max(rect.width, rect.height);
+
+                    const x = e.clientX - rect.left - size / 2;
+
+                    const y = e.clientY - rect.top - size / 2;
+
+                    
+
+                    ripple.style.cssText = `
+
+                        width: ${size}px;
+
+                        height: ${size}px;
+
+                        left: ${x}px;
+
+                        top: ${y}px;
+
+                        position: absolute;
+
+                        border-radius: 50%;
+
+                        background: rgba(255, 255, 255, 0.4);
+
+                        transform: scale(0);
+
+                        animation: ripple-effect 0.6s linear;
+
+                        pointer-events: none;
+
+                    `;
+
+                    
+
+                    this.style.position = 'relative';
+
+                    this.style.overflow = 'hidden';
+
+                    this.appendChild(ripple);
+
+                    
+
+                    setTimeout(() => ripple.remove(), 600);
+
+                });
+
+            }
+
+
+            document.querySelectorAll('button, .cta-button, .hero-cta').forEach(applyRipple);
+
+
+            const style = document.createElement('style');
+
+            style.textContent = `
+
+                @keyframes ripple-effect {
+
+                    to { transform: scale(2); opacity: 0; }
+
+                }
+
+            `;
+
+            document.head.appendChild(style);
+
+        });
+
+    </script>
+
+</body>
+
+</html>
+
+
+
+
+check your work clean it up and update all files
+  make sure you are using re4al coder
+  research everything . ready only for now 
+  
+  
+

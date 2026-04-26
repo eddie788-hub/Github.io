@@ -1,0 +1,481 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>Starship Casper: Interstellar Command</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root { --glitch-green: #4ade80; --deep-void: #020617; --alert-red: #ef4444; --nav-blue: #3b82f6; --warp-cyan: #22d3ee; }
+        body { 
+            margin: 0; overflow: hidden; background: var(--deep-void);
+            font-family: 'Courier New', Courier, monospace; color: var(--glitch-green);
+            touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; }
+        .interactive { pointer-events: auto; }
+
+        .wing-panel {
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(74, 222, 128, 0.15);
+            width: 240px;
+            pointer-events: auto;
+        }
+
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: block; }
+        .tab-btn { opacity: 0.4; border-bottom: 2px solid transparent; transition: all 0.2s; font-size: 8px; font-weight: bold; text-transform: uppercase; }
+        .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--glitch-green); color: white; }
+
+        #globe-container {
+            width: 110px; height: 110px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.05) 0%, transparent 80%);
+            overflow: hidden;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            margin: 0 auto;
+        }
+        #globe-canvas { width: 100% !important; height: 100% !important; pointer-events: none; }
+
+        .status-bar-container { width: 50px; height: 4px; background: #000; border-radius: 10px; overflow: hidden; }
+
+        #joystick-zone {
+            width: 140px; height: 140px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+        }
+        #joystick-knob {
+            width: 50px; height: 50px;
+            background: rgba(74, 222, 128, 0.4);
+            border: 1px solid rgba(74, 222, 128, 0.6);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .mic-active {
+            animation: pulse-mic 1s infinite;
+            background: rgba(34, 211, 238, 0.3) !important;
+            border-color: #22d3ee !important;
+        }
+        @keyframes pulse-mic {
+            0% { box-shadow: 0 0 0 0px rgba(34, 211, 238, 0.4); }
+            100% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); }
+        }
+
+        .hud-vignette {
+            position: fixed; inset: 0;
+            background: radial-gradient(circle, transparent 65%, rgba(0,0,0,0.5) 100%);
+            pointer-events: none; z-index: 5;
+        }
+
+        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(74, 222, 128, 0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="hud-vignette"></div>
+
+    <div id="boot-sequence" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-6 text-center">
+        <div class="text-xl mb-4 tracking-[0.5em] font-bold text-green-400 uppercase">Warship Casper // Neural Link 9.0</div>
+        <div id="boot-lines" class="text-[9px] text-green-800 h-24 overflow-hidden mb-6 opacity-60 font-mono w-72 text-left"></div>
+        <button onclick="initGame()" class="interactive border-2 border-green-500 text-green-500 px-12 py-4 hover:bg-green-500 hover:text-black transition-all active:scale-95 uppercase text-sm font-bold tracking-widest">Login: Greenfield</button>
+    </div>
+
+    <div id="ui-layer">
+        <!-- TOP HUD -->
+        <div class="p-2 w-full flex justify-center">
+            <div class="wing-panel px-4 py-2 rounded-full flex items-center space-x-4 interactive text-[8px] w-auto border-white/5">
+                <div class="flex flex-col items-center"><span id="galaxy-name" class="font-bold text-blue-400">SOL_REMNANT</span></div>
+                <div class="h-3 w-[1px] bg-white/10"></div>
+                <div class="flex items-center space-x-2"><span class="opacity-40 uppercase">HULL</span><span id="hull-pct" class="font-bold text-white">100%</span></div>
+                <div class="flex items-center space-x-2">
+                    <span class="opacity-40 uppercase">SHLD</span>
+                    <div class="status-bar-container"><div id="shield-bar" class="h-full bg-blue-400 w-[2%]"></div></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="opacity-40 uppercase">PWR</span>
+                    <div class="status-bar-container"><div id="power-bar" class="h-full bg-green-500 w-[33%]"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 flex justify-between p-4 items-stretch">
+            <!-- LEFT WING: COMMAND -->
+            <div class="wing-panel rounded-2xl flex flex-col overflow-hidden">
+                <div class="flex bg-white/5 border-b border-white/10">
+                    <button onclick="showTab('nav')" class="tab-btn flex-1 py-3 active" id="btn-nav">Navigation</button>
+                    <button onclick="showTab('tac')" class="tab-btn flex-1 py-3" id="btn-tac">Tactical</button>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto">
+                    <div id="tab-nav" class="tab-content active space-y-4">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setCam('bridge')" class="py-2 border border-white/10 rounded-lg text-[8px] hover:bg-white/5 uppercase">Bridge</button>
+                            <button onclick="setCam('chase')" class="py-2 border border-white/10 rounded-lg text-[8px] hover:bg-white/5 uppercase">Chase</button>
+                        </div>
+                        <div class="space-y-1 text-[8px]">
+                            <div class="flex justify-between opacity-50"><span>V-VECTOR</span><span id="vel-val">0</span></div>
+                            <div class="flex justify-between opacity-50"><span>BEARING</span><span id="heading">0°</span></div>
+                            <div class="flex justify-between font-bold text-yellow-500 mt-2 uppercase"><span>Locked:</span><span id="wp-name">NONE</span></div>
+                        </div>
+                    </div>
+                    <div id="tab-tac" class="tab-content space-y-3">
+                        <div id="target-data" class="text-[8px] bg-black/40 p-2 rounded-lg text-blue-300 h-14 italic border border-blue-500/10 flex items-center leading-tight">SENSORS STANDBY...</div>
+                        <button onclick="autoTarget()" class="w-full py-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-[8px] font-bold uppercase">Lock Nearest</button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="shoot('pulse')" class="py-3 bg-green-900/10 border border-green-500/30 rounded-lg text-[8px] uppercase">Pulse</button>
+                            <button onclick="shoot('ion')" class="py-3 bg-blue-900/10 border border-blue-500/30 rounded-lg text-[8px] uppercase">Ion Bolt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER CLEAR ZONE -->
+            <div class="flex-1 pointer-events-none flex flex-col items-center justify-center relative">
+                <div id="waypoint-marker" class="absolute w-40 h-40 border border-transparent flex flex-col items-center justify-start opacity-0 transition-opacity duration-300">
+                    <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[10px] border-b-yellow-400 mb-1"></div>
+                    <span id="wp-dist" class="text-yellow-400 text-[8px] font-bold">1200u</span>
+                </div>
+                <div id="alert-box" class="mt-4 px-6 py-1 rounded text-red-500 font-bold border-red-500/40 uppercase text-[8px] tracking-widest opacity-0 transition-opacity">Hull Hazard</div>
+            </div>
+
+            <!-- RIGHT WING: ENGINEERING & NEURAL -->
+            <div class="wing-panel rounded-2xl flex flex-col overflow-hidden">
+                <div class="flex bg-white/5 border-b border-white/10">
+                    <button onclick="showTab('eng')" class="tab-btn flex-1 py-3 active" id="btn-eng">Engine</button>
+                    <button onclick="showTab('sys')" class="tab-btn flex-1 py-3" id="btn-sys">Neural/Sys</button>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto">
+                    <div id="globe-container" class="mb-3">
+                        <canvas id="globe-canvas"></canvas>
+                    </div>
+
+                    <div id="tab-eng" class="tab-content active space-y-2">
+                        <button onclick="warpJump()" class="w-full py-2 bg-cyan-600/10 border border-cyan-400 rounded-lg text-[8px] font-bold text-cyan-400 uppercase">Warp Drive</button>
+                        <button onclick="toggleStabilizer()" id="stab-btn" class="w-full py-2 border border-white/10 rounded-lg text-[8px] uppercase">Stabilizer: ON</button>
+                        <div class="grid grid-cols-2 gap-1">
+                            <button onclick="jumpToGalaxy('ANDROMEDA')" class="py-1.5 border border-purple-500/30 rounded text-[7px] uppercase">Andromeda</button>
+                            <button onclick="jumpToGalaxy('NEBULA_PRIME')" class="py-1.5 border border-red-500/30 rounded text-[7px] uppercase">Nebula</button>
+                        </div>
+                    </div>
+                    <div id="tab-sys" class="tab-content space-y-2">
+                        <div id="crew-comms" class="text-[7px] text-blue-300 italic bg-blue-900/10 p-2 rounded max-h-12 overflow-y-auto">Status: 20 humans in stasis. Sol system lost.</div>
+                        <button onclick="startVoiceRecognition()" id="voice-btn" class="w-full py-2.5 border border-cyan-500/40 rounded-lg text-[8px] font-bold text-cyan-400 bg-cyan-950/20 uppercase">Voice Command</button>
+                        <div class="text-[7px] opacity-30 uppercase mt-1">Intents: TAC, NAV, ENG, SYS</div>
+                        <button onclick="dockWithStation()" id="dock-btn" class="w-full py-2 bg-blue-500/20 border border-blue-400 rounded text-[8px] hidden uppercase">Dock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM CONTROLS -->
+        <div class="px-10 pb-6 flex justify-between items-end">
+            <div class="interactive" id="joystick-zone"><div id="joystick-knob"></div></div>
+
+            <div id="voice-overlay" class="pointer-events-none opacity-0 transition-opacity mb-4">
+                <div class="glass-panel px-5 py-2 rounded-full border-cyan-500/40 text-[8px] text-cyan-400 flex items-center space-x-3">
+                    <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></div>
+                    <span id="voice-transcription">Neural listening...</span>
+                </div>
+            </div>
+
+            <div class="interactive flex flex-col items-center gap-2">
+                <div class="h-32 w-10 glass-panel rounded-2xl relative overflow-hidden border-white/5">
+                    <input type="range" id="throttle" min="0" max="100" value="0" step="1" 
+                           class="absolute inset-0 opacity-0 cursor-pointer h-full w-full" 
+                           style="appearance: slider-vertical; -webkit-appearance: slider-vertical;"
+                           oninput="updateThrottle(this.value)">
+                    <div id="throttle-fill" class="w-full bg-blue-500/40 absolute bottom-0 transition-all duration-200" style="height: 0%"></div>
+                </div>
+                <div class="text-[8px] font-bold opacity-30 uppercase tracking-widest">Thrust</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; 
+        const state = {
+            ship: {
+                shields: 2, power: 33, repair: 11, hull: 100,
+                velocity: new THREE.Vector3(),
+                rotX: 0, rotY: 0, throttle: 0, stabilizer: true,
+                target: null, inv: ["","","",""], camMode: 'bridge',
+                lastFired: 0, galaxy: 'SOL_REMNANT'
+            },
+            enemies: [], waypoints: [], stations: [], asteroids: []
+        };
+
+        let scene, camera, renderer, casper, clock = new THREE.Clock();
+        let globeScene, globeCamera, globeRenderer, globeSphere;
+        let joyActive = false, joyStart = { x:0, y:0 };
+
+        const galaxyData = {
+            'SOL_REMNANT': { color: 0x00020a, fog: 0x00020a, starColor: 0xffffff, diff: 1 },
+            'ANDROMEDA': { color: 0x0a0015, fog: 0x0a0015, starColor: 0xcc99ff, diff: 2 },
+            'NEBULA_PRIME': { color: 0x150200, fog: 0x150200, starColor: 0xffaa88, diff: 3 }
+        };
+
+        // --- ENHANCED VOICE INTERFACE ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('voice-transcription').innerText = `"${transcript}"`;
+                handleVoiceCommand(transcript);
+            };
+            recognition.onend = () => {
+                document.getElementById('voice-overlay').style.opacity = '0';
+                document.getElementById('voice-btn').classList.remove('mic-active');
+            };
+        }
+
+        async function fetchGeminiAction(userQuery) {
+            // Broadening the intent recognition to handle 100+ standard sci-fi command variations
+            const systemPrompt = `You are the Neural Interface of the Warship Casper. 
+            Interpret 100+ command variations into these categories: 
+            TAC: fire_pulse, fire_ion, target_nearest. 
+            NAV: bridge_view, chase_view, align_target. 
+            ENG: warp, brake, toggle_gyro, jump_andromeda, jump_nebula. 
+            SYS: repair, report_survivors.
+            
+            Common variations: "Open fire", "Destroy drone", "Engage warp", "Punch it", "Stop ship", "Check crew status", "Look at the bridge", "Switch view", "Align course".
+            Return ONLY a JSON object: {"action": "warp", "confidence": 0.95}.`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { 
+                contents: [{ parts: [{ text: userQuery }] }], 
+                systemInstruction: { parts: [{ text: systemPrompt }] }, 
+                generationConfig: { responseMimeType: "application/json" } 
+            };
+            
+            try {
+                const response = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
+                const data = await response.json();
+                return JSON.parse(data.candidates[0].content.parts[0].text);
+            } catch (e) {
+                // Local fallback for basic strings if API fails
+                if(userQuery.toLowerCase().includes("fire")) return {action: "fire_pulse"};
+                if(userQuery.toLowerCase().includes("warp")) return {action: "warp"};
+                return null;
+            }
+        }
+
+        async function handleVoiceCommand(transcript) {
+            const result = await fetchGeminiAction(transcript);
+            if (result && result.action) {
+                executeAction(result.action);
+            } else {
+                addCrewLog("Neural sync failure: Command ambiguous.");
+            }
+        }
+
+        function executeAction(action) {
+            addCrewLog(`COMPUTER: EXEC ${action.toUpperCase()}`);
+            switch(action) {
+                case 'warp': warpJump(); break;
+                case 'brake': updateThrottle(0); break;
+                case 'target_nearest': autoTarget(); break;
+                case 'fire_pulse': shoot('pulse'); break;
+                case 'fire_ion': shoot('ion'); break;
+                case 'toggle_gyro': toggleStabilizer(); break;
+                case 'jump_andromeda': jumpToGalaxy('ANDROMEDA'); break;
+                case 'jump_nebula': jumpToGalaxy('NEBULA_PRIME'); break;
+                case 'bridge_view': setCam('bridge'); break;
+                case 'chase_view': setCam('chase'); break;
+                case 'report_survivors': addCrewLog("20 humans confirmed in stasis. Oxygen 99%."); break;
+                case 'repair': dockWithStation(); break;
+            }
+        }
+
+        function startVoiceRecognition() {
+            if (!recognition) return;
+            document.getElementById('voice-overlay').style.opacity = '1';
+            document.getElementById('voice-btn').classList.add('mic-active');
+            recognition.start();
+        }
+
+        // --- ENGINE ---
+        function initGame() {
+            document.getElementById('boot-sequence').style.display = 'none';
+            setupThree(); setupGlobe(); setupTouch(); spawnWorld(); animate();
+        }
+
+        function setupThree() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(galaxyData[state.ship.galaxy].color);
+            scene.fog = new THREE.FogExp2(galaxyData[state.ship.galaxy].color, 0.0007);
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 50000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.body.appendChild(renderer.domElement);
+            scene.add(new THREE.AmbientLight(0x202040));
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(200, 200, 100); scene.add(sun);
+            casper = new THREE.Group();
+            casper.add(new THREE.Mesh(new THREE.BoxGeometry(3, 0.8, 8), new THREE.MeshPhongMaterial({ color: 0x111111 })));
+            scene.add(casper);
+            const starGeo = new THREE.BufferGeometry();
+            const starPos = [];
+            for(let i=0; i<10000; i++) starPos.push(THREE.MathUtils.randFloatSpread(40000), THREE.MathUtils.randFloatSpread(40000), THREE.MathUtils.randFloatSpread(40000));
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+            scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ size: 2, color: galaxyData[state.ship.galaxy].starColor })));
+        }
+
+        function setupGlobe() {
+            const canvas = document.getElementById('globe-canvas');
+            globeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            globeRenderer.setSize(120, 120);
+            globeScene = new THREE.Scene();
+            globeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+            globeCamera.position.set(0, 50, 80); globeCamera.lookAt(0, 0, 0);
+            globeSphere = new THREE.Mesh(new THREE.SphereGeometry(30, 16, 16), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.1 }));
+            globeScene.add(globeSphere);
+            const shipMarker = new THREE.Mesh(new THREE.ConeGeometry(2, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            shipMarker.rotation.x = Math.PI / 2; shipMarker.name = "shipMarker";
+            globeScene.add(shipMarker);
+        }
+
+        function spawnWorld() {
+            const diff = galaxyData[state.ship.galaxy].diff;
+            for(let i=0; i<15*diff; i++) {
+                const e = new THREE.Mesh(new THREE.OctahedronGeometry(2), new THREE.MeshPhongMaterial({ color: 0xff3333, emissive: 0x220000 }));
+                e.position.set(Math.random()*4000-2000, Math.random()*800-400, -1000 - Math.random()*3000);
+                e.userData = { hp: 100, type: 'hostile', id: 'DRONE_'+i };
+                scene.add(e); state.enemies.push(e);
+            }
+            for(let i=0; i<30*diff; i++) {
+                const s = 10 + Math.random()*30;
+                const a = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), new THREE.MeshPhongMaterial({ color: 0x333333 }));
+                a.position.set(Math.random()*10000-5000, Math.random()*1500-750, Math.random()*10000-5000);
+                a.userData = { type: 'asteroid', size: s };
+                scene.add(a); state.asteroids.push(a);
+            }
+            const st = new THREE.Group(); st.add(new THREE.Mesh(new THREE.CylinderGeometry(15,15,40,32), new THREE.MeshPhongMaterial({color:0x222222})));
+            st.position.set(800, 200, -1500); st.userData = { type: 'station', name: 'OUTPOST_9' };
+            scene.add(st); state.stations.push(st);
+        }
+
+        function setupTouch() {
+            const zone = document.getElementById('joystick-zone');
+            const knob = document.getElementById('joystick-knob');
+            const start = (e) => { joyActive = true; const t = e.touches ? e.touches[0] : e; const rect = zone.getBoundingClientRect(); joyStart = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 }; };
+            const move = (e) => {
+                if(!joyActive) return; const t = e.touches ? e.touches[0] : e;
+                const dx = t.clientX - joyStart.x, dy = t.clientY - joyStart.y;
+                const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 50); const angle = Math.atan2(dy, dx);
+                knob.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px))`;
+                state.ship.rotY = -Math.cos(angle) * (dist/3000); state.ship.rotX = -Math.sin(angle) * (dist/3000);
+            };
+            const end = () => { joyActive = false; knob.style.transform = `translate(-50%, -50%)`; if(state.ship.stabilizer) { state.ship.rotX = 0; state.ship.rotY = 0; } };
+            zone.addEventListener('touchstart', start); window.addEventListener('touchmove', move); window.addEventListener('touchend', end);
+            zone.addEventListener('mousedown', start); window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+        }
+
+        function showTab(id) {
+            const parent = document.getElementById('btn-'+id).parentElement.parentElement;
+            parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-'+id).classList.add('active');
+            document.getElementById('btn-'+id).classList.add('active');
+        }
+
+        function updateThrottle(v) { state.ship.throttle = v / 100; document.getElementById('throttle-fill').style.height = v + '%'; document.getElementById('throttle').value = v; }
+        function warpJump() { if(state.ship.power < 15) return; state.ship.power -= 15; state.ship.velocity.add(new THREE.Vector3(0,0,-1).applyQuaternion(casper.quaternion).multiplyScalar(120)); renderer.domElement.classList.add('warp-active'); setTimeout(()=>renderer.domElement.classList.remove('warp-active'), 400); }
+        function toggleStabilizer() { state.ship.stabilizer = !state.ship.stabilizer; document.getElementById('stab-btn').innerText = `GYRO: ${state.ship.stabilizer ? 'ON' : 'OFF'}`; }
+        function shoot(type) {
+            if(!state.ship.target || state.ship.power < 5) return;
+            const now = Date.now(); if(now - state.ship.lastFired < 200) return; state.ship.lastFired = now;
+            state.ship.power -= (type === 'pulse' ? 4 : 12);
+            const mat = new THREE.LineBasicMaterial({ color: type==='pulse'? 0x4ade80 : 0x3b82f6 });
+            const pts = [casper.position.clone(), state.ship.target.position.clone()];
+            const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat); scene.add(line); setTimeout(() => scene.remove(line), 80);
+            if(state.ship.target.userData.hp) { state.ship.target.userData.hp -= (type === 'pulse' ? 25 : 65); if(state.ship.target.userData.hp <= 0) { scene.remove(state.ship.target); state.enemies = state.enemies.filter(x => x !== state.ship.target); state.ship.target = null; } }
+        }
+
+        function jumpToGalaxy(name) {
+            state.ship.power -= 30; state.ship.galaxy = name;
+            state.enemies.forEach(e => scene.remove(e)); state.asteroids.forEach(a => scene.remove(a)); state.stations.forEach(s => scene.remove(s));
+            state.enemies = []; state.asteroids = []; state.stations = [];
+            scene.background = new THREE.Color(galaxyData[name].color); scene.fog.color = new THREE.Color(galaxyData[name].color);
+            document.getElementById('galaxy-name').innerText = name; spawnWorld(); casper.position.set(0,0,0);
+        }
+
+        function autoTarget() { let close = null, d = Infinity; [...state.enemies, ...state.stations].forEach(e => { const dist = casper.position.distanceTo(e.position); if(dist < d) { d = dist; close = e; } }); state.ship.target = close; }
+        function dockWithStation() { state.ship.shields = 100; state.ship.hull = 100; addCrewLog("System repair/dock complete."); }
+        function setCam(m) { state.ship.camMode = m; }
+        function addCrewLog(m) { const l = document.getElementById('crew-comms'); const div = document.createElement('div'); div.innerText = `> ${m}`; l.prepend(div); }
+
+        function updateGlobe() {
+            const toRemove = []; globeScene.traverse(obj => { if(obj.name === "blip") toRemove.push(obj); }); toRemove.forEach(o => globeScene.remove(o));
+            const range = 2000; const globeScale = 30 / range;
+            const addBlip = (obj, color) => { const rel = obj.position.clone().sub(casper.position); if(rel.length() < range) { const blip = new THREE.Mesh(new THREE.SphereGeometry(1.5, 8, 8), new THREE.MeshBasicMaterial({ color })); blip.position.copy(rel.multiplyScalar(globeScale)); blip.name = "blip"; globeScene.add(blip); } };
+            state.enemies.forEach(e => addBlip(e, 0xff3333)); state.stations.forEach(s => addBlip(s, 0x3b82f6));
+            globeSphere.rotation.y = -casper.rotation.y; globeScene.getObjectByName("shipMarker").rotation.z = -casper.rotation.x;
+            globeRenderer.render(globeScene, globeCamera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate); const dt = clock.getDelta();
+            const fwd = new THREE.Vector3(0,0,-1).applyQuaternion(casper.quaternion);
+            const targetVel = fwd.clone().multiplyScalar(state.ship.throttle * 8);
+            state.ship.velocity.lerp(targetVel, state.ship.stabilizer ? 0.05 : 0.01);
+            casper.position.add(state.ship.velocity);
+            casper.rotation.y += state.ship.rotY; casper.rotation.x += state.ship.rotX;
+
+            if(state.ship.camMode === 'bridge') { camera.position.lerp(new THREE.Vector3(0, 0.7, 0.1).applyMatrix4(casper.matrixWorld), 0.1); camera.lookAt(new THREE.Vector3(0, 0.5, -50).applyMatrix4(casper.matrixWorld)); }
+            else { camera.position.lerp(new THREE.Vector3(0, 8, 25).applyMatrix4(casper.matrixWorld), 0.05); camera.lookAt(casper.position); }
+
+            if(state.ship.shields < 100) state.ship.shields += 0.1;
+            if(state.ship.power < 100) state.ship.power += 0.2;
+
+            let nr = false; state.stations.forEach(s => { s.rotation.y += 0.005; if(casper.position.distanceTo(s.position) < 120) nr = true; });
+            document.getElementById('dock-btn').classList.toggle('hidden', !nr);
+
+            const active = state.ship.target || (state.enemies[0] || state.stations[0]);
+            if(active) {
+                const marker = document.getElementById('waypoint-marker');
+                const wpPos = active.position.clone().project(camera);
+                const x = (wpPos.x * 0.5 + 0.5) * window.innerWidth, y = (wpPos.z > 0 && wpPos.z < 1) ? ((-wpPos.y * 0.5 + 0.5) * window.innerHeight) : -1000;
+                marker.style.left = `${x}px`; marker.style.top = `${y}px`; marker.style.opacity = (wpPos.z > 0 && wpPos.z < 1) ? '1' : '0';
+                document.getElementById('wp-dist').innerText = Math.floor(casper.position.distanceTo(active.position)) + 'u';
+                document.getElementById('wp-name').innerText = (active.userData.name || active.userData.id).slice(0, 8);
+            }
+
+            updateGlobe(); updateUI(); renderer.render(scene, camera);
+        }
+
+        function updateUI() {
+            document.getElementById('shield-val').innerText = Math.floor(state.ship.shields) + '%';
+            document.getElementById('shield-bar').style.width = state.ship.shields + '%';
+            document.getElementById('power-bar').style.width = state.ship.power + '%';
+            document.getElementById('hull-pct').innerText = Math.floor(state.ship.hull) + '%';
+            document.getElementById('vel-val').innerText = Math.floor(state.ship.velocity.length() * 100);
+            document.getElementById('heading').innerText = Math.floor(casper.rotation.y * (180/Math.PI) % 360) + "°";
+            if(state.ship.target) {
+                const ud = state.ship.target.userData;
+                document.getElementById('target-data').innerHTML = `${ud.id || ud.name} | ${Math.floor(casper.position.distanceTo(state.ship.target.position))}u<br>HP: ${ud.hp || 100}%`;
+            } else { document.getElementById('target-data').innerText = "LOCK IDLE..."; }
+        }
+
+        const bLogs = ["Calibrating 100+ Command Set...", "Neural Link v9.0: MOBILE_HORIZONTAL", "Mic Permission: OK", "Gemini 2 Lexicon: LOADED"];
+        let bi = 0; const bInt = setInterval(() => { const l = document.getElementById('boot-lines'); if(bi < bLogs.length) { l.innerHTML += `<div>> ${bLogs[bi++]}</div>`; l.scrollTop = l.scrollHeight; } else clearInterval(bInt); }, 250);
+
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+    </script>
+</body>
+</html>
+
+```
